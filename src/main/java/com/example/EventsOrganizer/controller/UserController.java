@@ -27,15 +27,15 @@ public class UserController {
         return null;
     }
 
-    @GetMapping("/{userId}/sub/events")
-    public EventDto getEventsByUser(@PathVariable String userId) {
-        return null;
-    }
-
-    @GetMapping("/{userId}/sub/events")
-    public ClubDto getClubsByUser(@PathVariable String userId) {
-        return null;
-    }
+//    @GetMapping("/{userId}/sub/events")
+//    public EventDto getEventsByUser(@PathVariable String userId) {
+//        return null;
+//    }
+//
+//    @GetMapping("/{userId}/sub/events")
+//    public ClubDto getClubsByUser(@PathVariable String userId) {
+//        return null;
+//    }
 
 
 
