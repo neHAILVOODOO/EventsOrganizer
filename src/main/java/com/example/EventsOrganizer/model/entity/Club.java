@@ -1,5 +1,8 @@
 package com.example.EventsOrganizer.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +22,7 @@ public class Club {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     private String name;
     private String description;
     private String thematics;
@@ -30,13 +33,16 @@ public class Club {
             , joinColumns = @JoinColumn(name = "subscribed_club_id")
             , inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonBackReference
     private List<User> users;
 
     @OneToOne
     @JoinColumn(name = "owner_id")
+    @JsonBackReference
     private User owner;
 
     @OneToMany(mappedBy = "organizingClub",cascade = CascadeType.REMOVE)
+    @JsonBackReference
     private List<Event> events;
 
 

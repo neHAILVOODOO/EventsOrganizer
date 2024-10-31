@@ -3,6 +3,9 @@ package com.example.EventsOrganizer.model.entity;
 
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,7 +23,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     private String login;
     private String password;
     private String name;
@@ -33,9 +36,11 @@ public class User {
             , joinColumns = @JoinColumn(name = "user_id")
             , inverseJoinColumns = @JoinColumn(name = "subscribed_club_id")
     )
+    @JsonIgnore
     private List<Club> subscribedClubs;
 
     @OneToOne(mappedBy = "owner")
+    @JsonBackReference
     private Club ownClub;
 
     @ManyToMany()
@@ -43,6 +48,7 @@ public class User {
             , joinColumns = @JoinColumn(name = "user_id")
             , inverseJoinColumns = @JoinColumn(name = "joined_event_id")
     )
+    @JsonBackReference
     private List<Event> joinedEvents;
 
 }
