@@ -1,6 +1,7 @@
 package com.example.EventsOrganizer.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,9 @@ public class Event {
     private long id;
     private String name;
     private String description;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date beginDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date endDate;
     private String status;
 
@@ -34,12 +37,12 @@ public class Event {
             , joinColumns = @JoinColumn(name = "joined_event_id")
             , inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonBackReference
+    @JsonBackReference("joinedEventsReference")
     private List<User> joinedUsers;
 
     @ManyToOne()
     @JoinColumn(name = "organizing_club_id")
-    @JsonManagedReference
+    @JsonBackReference("eventsReference")
     private Club organizingClub;
 
 }

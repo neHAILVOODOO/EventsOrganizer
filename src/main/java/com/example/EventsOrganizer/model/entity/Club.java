@@ -33,16 +33,16 @@ public class Club {
             , joinColumns = @JoinColumn(name = "subscribed_club_id")
             , inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonBackReference
+    @JsonBackReference("subscribedClubsReference")
     private List<User> users;
 
     @OneToOne
     @JoinColumn(name = "owner_id")
-    @JsonBackReference
+    @JsonBackReference("ownClubReference")
     private User owner;
 
     @OneToMany(mappedBy = "organizingClub",cascade = CascadeType.REMOVE)
-    @JsonBackReference
+    @JsonBackReference("eventsReference")
     private List<Event> events;
 
 

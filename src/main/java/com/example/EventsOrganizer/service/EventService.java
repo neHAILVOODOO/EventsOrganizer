@@ -8,6 +8,12 @@ public interface EventService {
 
     EventDto createEventForClub(EventDto eventDto, long clubId);
 
-    List<EventDto> getEventsFromClub(long clubId);
+    List<EventDto> findEventsByClub(long clubId);
+
+    EventDto findEventByClubAndEventId(long clubId, long eventId);
+
+    EventDto updateEvent(EventDto eventDto, long clubId, long eventId);
+
+    void deleteEvent(long clubId, long eventId);
 
 }

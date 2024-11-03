@@ -11,6 +11,11 @@ import java.util.List;
 public interface UserRepo extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u JOIN u.subscribedClubs c ON c.id = :clubId")
-    List<User> findAllBySubscribedClubId(@Param("clubId") Long clubId);
+    List<User> findAllBySubscribedClubId(@Param("clubId") long clubId);
+
+    @Query("SELECT u FROM User u JOIN u.joinedEvents c ON c.id = :eventId")
+    List<User> findAllByJoinedEventId(@Param("eventId") long eventId);
+
+    User findUserById(long userId);
 
 }

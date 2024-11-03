@@ -40,6 +40,21 @@ public class UserServiceImpl implements UserService {
         return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
     }
 
+    @Override
+    public List<UserDto> findAllByJoinedEventId(long eventId) {
+        List<User> users = userRepo.findAllByJoinedEventId(eventId);
+        return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
+    }
+
+//    @Override
+//    public UserDto updateUser(UserDto userDto, long userId) {
+//        User user = userRepo.findUserById(userId);
+//
+//        String
+//
+//        return null;
+//    }
+
 
     private User mapToUser(UserDto userDto) {
         User user = User.builder()

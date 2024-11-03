@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface EventRepo extends JpaRepository<Event, Long> {
 
-List<Event> findAllByOrganizingClub(Club club);
+    List<Event> findAllByOrganizingClub(Club club);
+
+    Event findByOrganizingClub_IdAndId(long clubId, long eventId);
 
 }

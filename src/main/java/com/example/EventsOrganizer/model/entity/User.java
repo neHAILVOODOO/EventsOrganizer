@@ -36,11 +36,11 @@ public class User {
             , joinColumns = @JoinColumn(name = "user_id")
             , inverseJoinColumns = @JoinColumn(name = "subscribed_club_id")
     )
-    @JsonIgnore
+    @JsonBackReference("subscribedClubsReference")
     private List<Club> subscribedClubs;
 
     @OneToOne(mappedBy = "owner")
-    @JsonBackReference
+    @JsonBackReference("ownClubReference")
     private Club ownClub;
 
     @ManyToMany()
@@ -48,7 +48,7 @@ public class User {
             , joinColumns = @JoinColumn(name = "user_id")
             , inverseJoinColumns = @JoinColumn(name = "joined_event_id")
     )
-    @JsonBackReference
+    @JsonBackReference("joinedEventsReference")
     private List<Event> joinedEvents;
 
 }

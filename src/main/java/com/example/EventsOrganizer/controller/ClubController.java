@@ -34,7 +34,7 @@ public class ClubController {
         return clubService.getAllClubs();
     }
 
-    @PostMapping("/create")
+    @PostMapping()
     public ClubDto createClub(@RequestBody ClubDto clubDto) {
         return clubService.saveClub(clubDto);
     }
@@ -44,21 +44,52 @@ public class ClubController {
         return clubService.findClubById(clubId);
     }
 
-    @GetMapping("/{clubId}/events")
-    public List<EventDto> getEventsFromClub(@PathVariable long clubId) {
-        return eventService.getEventsFromClub(clubId);
+    @PatchMapping("/{clubId}")
+    public ClubDto editClub(@RequestBody ClubDto clubDto, @PathVariable long clubId) {
+        return clubService.updateClub(clubDto,clubId);
     }
 
-    @PostMapping("/{clubId}/events/create")
-    public EventDto createEventForClub(@RequestBody EventDto eventDto, @PathVariable long clubId) {
-        return eventService.createEventForClub(eventDto, clubId);
+    @DeleteMapping("/{clubId}")
+    public void deleteClub(@PathVariable long clubId) {
+        clubService.deleteClub(clubId);
     }
 
     @GetMapping("/{clubId}/subscribers")
     public List<UserDto> getClubSubscribers(@PathVariable long clubId) {
-        System.out.println("попка");
         return userService.findAllBySubscribedClubId(clubId);
     }
+
+    @GetMapping("/{clubId}/events")
+    public List<EventDto> getEventsFromClub(@PathVariable long clubId) {
+        return eventService.findEventsByClub(clubId);
+    }
+
+    @PostMapping("/{clubId}/events")
+    public EventDto createEventForClub(@RequestBody EventDto eventDto, @PathVariable long clubId) {
+        return eventService.createEventForClub(eventDto, clubId);
+    }
+
+    @GetMapping("/{clubId}/events/{eventId}")
+    public EventDto getEventFromClubById(@PathVariable long clubId, @PathVariable long eventId) {
+        return eventService.findEventByClubAndEventId(clubId, eventId);
+    }
+
+    @PatchMapping("/{clubId}/events/{eventId}")
+    public EventDto editEvent(@RequestBody EventDto eventDto, @PathVariable long clubId, @PathVariable long eventId) {
+        return eventService.updateEvent(eventDto,clubId,eventId);
+    }
+
+    @DeleteMapping("/{clubId}/events/{eventId}")
+    public void deleteEvent(@PathVariable long clubId, @PathVariable long eventId) {
+        eventService.deleteEvent(clubId, eventId);
+    }
+
+
+    @GetMapping("/{clubId}/events/{eventId}/subscribers")
+    public List<UserDto> getUsersJoinedToEvent(@PathVariable long eventId) {
+        return userService.findAllByJoinedEventId(eventId);
+    }
+
 
 
 }
