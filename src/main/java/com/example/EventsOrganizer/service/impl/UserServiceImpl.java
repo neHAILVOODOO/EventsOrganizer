@@ -1,12 +1,17 @@
 package com.example.EventsOrganizer.service.impl;
 
 import com.example.EventsOrganizer.model.dto.UserDto;
+import com.example.EventsOrganizer.model.entity.Club;
+import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
+import com.example.EventsOrganizer.repo.ClubRepo;
+import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +22,15 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private ClubRepo clubRepo;
+    @Autowired
+    private EventRepo eventRepo;
 
-    public UserServiceImpl(UserRepo userRepo) {
+    public UserServiceImpl(UserRepo userRepo, ClubRepo clubRepo, EventRepo eventRepo) {
         this.userRepo = userRepo;
+        this.clubRepo = clubRepo;
+        this.eventRepo = eventRepo;
     }
 
     @Override
@@ -44,6 +55,45 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> findAllByJoinedEventId(long eventId) {
         List<User> users = userRepo.findAllByJoinedEventId(eventId);
         return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    @Override
+    public UserDto subscribeToClub(long userId, long clubId) {
+        User user = userRepo.findUserById(userId);
+        Club club = clubRepo.findClubById(clubId);
+
+        if (club.getUsers().contains(user)) {
+
+            throw new IllegalStateException("Пользователь уже подписан на этот клуб.");
+
+        } else  {
+            user.getSubscribedClubs().add(club);
+            userRepo.save(user);
+            return mapToUserDto(user);
+        }
+
+
+
+
+    }
+
+    @Transactional
+    @Override
+    public UserDto jointToTheEvent(long userId, long eventId, long clubId) {
+       User user = userRepo.findUserById(userId);
+       Event event = eventRepo.findByOrganizingClub_IdAndId(clubId, eventId);
+
+       if (event.getJoinedUsers().contains(user)) {
+
+           throw new IllegalStateException("Пользователь уже присоединился к этому событию.");
+
+       } else {
+           user.getJoinedEvents().add(event);
+           userRepo.save(user);
+           return mapToUserDto(user);
+       }
     }
 
 //    @Override

@@ -4,10 +4,13 @@ package com.example.EventsOrganizer.controller;
 import com.example.EventsOrganizer.model.dto.ClubDto;
 import com.example.EventsOrganizer.model.dto.EventDto;
 import com.example.EventsOrganizer.model.dto.UserDto;
+import com.example.EventsOrganizer.security.UserPrincipal;
 import com.example.EventsOrganizer.service.ClubService;
 import com.example.EventsOrganizer.service.EventService;
 import com.example.EventsOrganizer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,6 +62,12 @@ public class ClubController {
         return userService.findAllBySubscribedClubId(clubId);
     }
 
+    @PatchMapping("/{clubId}/subscribe")
+    public UserDto subscribeToClub(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long clubId) {
+        long userId = userPrincipal.getUserId();
+        return userService.subscribeToClub(userId, clubId);
+    }
+
     @GetMapping("/{clubId}/events")
     public List<EventDto> getEventsFromClub(@PathVariable long clubId) {
         return eventService.findEventsByClub(clubId);
@@ -84,11 +93,18 @@ public class ClubController {
         eventService.deleteEvent(clubId, eventId);
     }
 
+    @PatchMapping("/{clubId}/events/{eventId}/join")
+    public UserDto joinToTheEvent(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long eventId, @PathVariable long clubId) {
+        long userId = userPrincipal.getUserId();
+        return userService.jointToTheEvent(userId, eventId, clubId);
+    }
+
 
     @GetMapping("/{clubId}/events/{eventId}/subscribers")
     public List<UserDto> getUsersJoinedToEvent(@PathVariable long eventId) {
         return userService.findAllByJoinedEventId(eventId);
     }
+
 
 
 

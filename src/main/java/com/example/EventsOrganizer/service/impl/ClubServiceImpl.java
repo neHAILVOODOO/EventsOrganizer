@@ -75,8 +75,6 @@ public class ClubServiceImpl implements ClubService {
         return mapToClubDto(club);
     }
 
-
-    //ДОДЕЛАТЬ!!!
     @Override
     @Transactional
     public void deleteClub(long clubId) {

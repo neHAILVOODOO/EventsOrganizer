@@ -18,4 +18,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     User findUserById(long userId);
 
+    User findUserByLogin(String login);
+
 }

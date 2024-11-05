@@ -18,4 +18,8 @@ public interface UserService {
 
    // UserDto updateUser(UserDto userDto, long userId);
 
+    UserDto subscribeToClub(long userId, long clubId);
+
+    UserDto jointToTheEvent(long userId, long eventId,  long clubId);
+
 }
