@@ -108,6 +108,12 @@ public class EventServiceImpl implements com.example.EventsOrganizer.service.Eve
         }
     }
 
+    @Override
+    public List<EventDto> findAllByUser(long userId) {
+        List<Event> events = eventRepo.findAllByUser(userId);
+        return events.stream().map((event) -> mapToEventDto(event)).collect(Collectors.toList());
+    }
+
     private Event mapToEvent(EventDto eventDto) {
 
     Event event = Event.builder()

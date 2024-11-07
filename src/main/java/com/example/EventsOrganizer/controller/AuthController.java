@@ -1,9 +1,11 @@
 package com.example.EventsOrganizer.controller;
 
 
+import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.security.JwtIssuer;
 import com.example.EventsOrganizer.security.UserPrincipal;
+import com.example.EventsOrganizer.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +27,7 @@ public class AuthController {
 
     private final JwtIssuer jwtIssuer;
     private final AuthenticationManager authenticationManager;
+    private final UserService userService;
 
     @PostMapping("/login")
     public String login(@RequestBody User user) {
@@ -44,5 +47,10 @@ public class AuthController {
         String token = jwtIssuer.issue(principal.getUserId(), principal.getLogin(), roles);
 
         return token;
+    }
+
+    @PostMapping("/register")
+    public UserDto register(@RequestBody UserDto userDto) {
+        return userService.saveUser(userDto);
     }
 }

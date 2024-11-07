@@ -9,6 +9,8 @@ import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -26,11 +28,20 @@ public class UserServiceImpl implements UserService {
     private ClubRepo clubRepo;
     @Autowired
     private EventRepo eventRepo;
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepo userRepo, ClubRepo clubRepo, EventRepo eventRepo) {
+    public UserServiceImpl(UserRepo userRepo, ClubRepo clubRepo, EventRepo eventRepo,PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.clubRepo = clubRepo;
         this.eventRepo = eventRepo;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public UserDto findById(long userId) {
+        User user = userRepo.findUserById(userId);
+        return mapToUserDto(user);
     }
 
     @Override
@@ -41,6 +52,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto saveUser(UserDto userDto) {
         User user = mapToUser(userDto);
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         userRepo.save(user);
         return mapToUserDto(user);
     }
@@ -55,6 +67,40 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> findAllByJoinedEventId(long eventId) {
         List<User> users = userRepo.findAllByJoinedEventId(eventId);
         return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDto updateUser(UserDto userDto, long userId) {
+        User user = userRepo.findUserById(userId);
+
+         String login = userDto.getLogin();
+         String password = userDto.getPassword();
+         String name = userDto.getName();
+         String surname = userDto.getSurname();
+         String phoneNumber = userDto.getPhoneNumber();
+         int age = userDto.getAge();
+
+        if (login != null && !login.isBlank()) {
+            user.setName(login);
+        }
+        if (password != null && !password.isBlank()) {
+            String encodedPassword = passwordEncoder.encode(password);
+            user.setPassword(encodedPassword);
+        }
+        if (name != null && !name.isBlank()) {
+            user.setName(name);
+        }
+        if (surname != null && !surname.isBlank()) {
+            user.setSurname(surname);
+        }
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            user.setPhoneNumber(phoneNumber);
+        }
+        if (age != 0) {
+            user.setAge(age);
+        }
+        userRepo.save(user);
+        return mapToUserDto(user);
     }
 
 
@@ -96,14 +142,29 @@ public class UserServiceImpl implements UserService {
        }
     }
 
-//    @Override
-//    public UserDto updateUser(UserDto userDto, long userId) {
-//        User user = userRepo.findUserById(userId);
-//
-//        String
-//
-//        return null;
-//    }
+    @Transactional
+    @Override
+    public UserDto unsubscribeFromClub(long userId, long clubId) {
+        User user = userRepo.findUserById(userId);
+        Club club = clubRepo.findClubById(clubId);
+
+        user.getSubscribedClubs().remove(club);
+        userRepo.save(user);
+
+        return mapToUserDto(user);
+    }
+
+    @Transactional
+    @Override
+    public UserDto leaveTheEvent(long userId, long eventId) {
+        User user = userRepo.findUserById(userId);
+        Event event = eventRepo.findById(eventId);
+
+        user.getJoinedEvents().remove(event);
+        userRepo.save(user);
+
+        return mapToUserDto(user);
+    }
 
 
     private User mapToUser(UserDto userDto) {

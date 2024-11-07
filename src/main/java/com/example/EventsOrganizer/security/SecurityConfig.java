@@ -22,6 +22,9 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
+
+    private final PasswordEncoder passwordEncoder;
+
     @Bean
     public SecurityFilterChain applicationSecurity(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
@@ -35,23 +38,21 @@ public class SecurityConfig {
                 .antMatcher("/clubs/{clubId}/subscribe")
                 .authorizeHttpRequests((registry) -> registry
                         .requestMatchers(new AntPathRequestMatcher("/auth/login")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/auth/register")).permitAll()
                         .anyRequest().authenticated()
                 );
 
     return http.build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder())
+                .passwordEncoder(passwordEncoder)
                 .and().build();
     }
 

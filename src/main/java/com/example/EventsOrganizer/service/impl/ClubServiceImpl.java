@@ -107,6 +107,12 @@ public class ClubServiceImpl implements ClubService {
 
     }
 
+    @Override
+    public List<ClubDto> findAllByUser(long userId) {
+        List<Club> clubs = clubRepo.findAllByUser(userId);
+        return clubs.stream().map((club) -> mapToClubDto(club)).collect(Collectors.toList());
+    }
+
 
     private Club mapToClub(ClubDto clubDto) {
         Club club = Club.builder()

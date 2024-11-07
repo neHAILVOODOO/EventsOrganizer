@@ -2,6 +2,7 @@ package com.example.EventsOrganizer.model.dto;
 
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.List;

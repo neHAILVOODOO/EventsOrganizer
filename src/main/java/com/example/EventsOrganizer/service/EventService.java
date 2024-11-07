@@ -16,4 +16,6 @@ public interface EventService {
 
     void deleteEvent(long clubId, long eventId);
 
+    List<EventDto> findAllByUser(long userId);
+
 }

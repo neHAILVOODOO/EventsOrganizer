@@ -16,4 +16,6 @@ public interface ClubService {
 
     void deleteClub(long clubId);
 
+    List<ClubDto> findAllByUser(long userId);
+
 }
