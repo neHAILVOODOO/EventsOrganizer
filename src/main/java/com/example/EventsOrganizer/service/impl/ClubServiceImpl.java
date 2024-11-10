@@ -1,7 +1,6 @@
 package com.example.EventsOrganizer.service.impl;
 
 import com.example.EventsOrganizer.model.dto.ClubDto;
-import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
@@ -9,7 +8,7 @@ import com.example.EventsOrganizer.repo.ClubRepo;
 import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.service.ClubService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -18,21 +17,14 @@ import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class ClubServiceImpl implements ClubService {
 
 
-    @Autowired
-    private ClubRepo clubRepo;
-    @Autowired
-    private UserRepo userRepo;
-    @Autowired
-    private EventRepo eventRepo;
+    private final ClubRepo clubRepo;
+    private final UserRepo userRepo;
+    private final EventRepo eventRepo;
 
-    public ClubServiceImpl(ClubRepo clubRepo, UserRepo userRepo, EventRepo eventRepo) {
-        this.clubRepo = clubRepo;
-        this.userRepo = userRepo;
-        this.eventRepo = eventRepo;
-    }
 
     @Transactional
     @Override

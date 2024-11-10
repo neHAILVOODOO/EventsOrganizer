@@ -1,8 +1,6 @@
 package com.example.EventsOrganizer.service;
 
 import com.example.EventsOrganizer.model.dto.UserDto;
-import com.example.EventsOrganizer.model.entity.User;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 

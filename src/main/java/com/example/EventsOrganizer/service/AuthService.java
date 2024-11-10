@@ -1,6 +1,5 @@
 package com.example.EventsOrganizer.service;
 
-import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.security.JwtIssuer;
 import com.example.EventsOrganizer.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.stream.Collectors;

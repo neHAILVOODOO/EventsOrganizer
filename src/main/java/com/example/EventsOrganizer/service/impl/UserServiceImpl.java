@@ -9,36 +9,27 @@ import com.example.EventsOrganizer.repo.ClubRepo;
 import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
 
-    @Autowired
-    private UserRepo userRepo;
-    @Autowired
-    private ClubRepo clubRepo;
-    @Autowired
-    private EventRepo eventRepo;
-    @Autowired
+    private final UserRepo userRepo;
+    private final ClubRepo clubRepo;
+    private final EventRepo eventRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepo userRepo, ClubRepo clubRepo, EventRepo eventRepo,PasswordEncoder passwordEncoder) {
-        this.userRepo = userRepo;
-        this.clubRepo = clubRepo;
-        this.eventRepo = eventRepo;
-        this.passwordEncoder = passwordEncoder;
-    }
+
 
     @Override
     public UserDto findById(long userId) {
