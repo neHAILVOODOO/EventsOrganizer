@@ -1,13 +1,8 @@
 package com.example.EventsOrganizer.model.entity;
 
 
-
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -29,8 +24,12 @@ public class User {
     private String name;
     private String surname;
     private String phoneNumber;
-    private String role;
     private int age;
+
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    private List<Role> roles;
 
     @ManyToMany()
     @JoinTable(name = "users_subscribed_to_clubs"

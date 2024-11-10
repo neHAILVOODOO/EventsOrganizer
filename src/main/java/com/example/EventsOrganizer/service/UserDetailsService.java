@@ -4,12 +4,14 @@ import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -23,10 +25,15 @@ public class UserDetailsService implements org.springframework.security.core.use
 
         User user = userRepo.findUserByLogin(username);
 
+        System.out.println(user.getRoles());
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                .collect(Collectors.toList());
+
         return UserPrincipal.builder()
                 .userId(user.getId())
                 .login(user.getLogin())
-                .authorities(List.of(new SimpleGrantedAuthority(user.getRole())))
+                .authorities(authorities)
                 .password(user.getPassword())
                 .build();
     }

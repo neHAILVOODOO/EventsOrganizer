@@ -1,6 +1,6 @@
 package com.example.EventsOrganizer.repo;
 
-import com.example.EventsOrganizer.model.dto.UserDto;
+
 import com.example.EventsOrganizer.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

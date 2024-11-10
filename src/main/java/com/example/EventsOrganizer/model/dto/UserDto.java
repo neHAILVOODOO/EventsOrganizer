@@ -2,6 +2,7 @@ package com.example.EventsOrganizer.model.dto;
 
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
+import com.example.EventsOrganizer.model.entity.Role;
 import lombok.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class UserDto {
     private String surname;
     private String phoneNumber;
     private int age;
+    private List<Role> roles;
 
     private List<Club> subscribedClubs;
     private Club ownClub;

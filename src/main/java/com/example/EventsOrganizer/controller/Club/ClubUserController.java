@@ -1,4 +1,4 @@
-package com.example.EventsOrganizer.controller;
+package com.example.EventsOrganizer.controller.Club;
 
 
 import com.example.EventsOrganizer.model.dto.ClubDto;
@@ -8,53 +8,29 @@ import com.example.EventsOrganizer.security.UserPrincipal;
 import com.example.EventsOrganizer.service.ClubService;
 import com.example.EventsOrganizer.service.EventService;
 import com.example.EventsOrganizer.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/clubs")
-public class ClubController {
+public class ClubUserController {
 
-    @Autowired
-    ClubService clubService;
-    @Autowired
-    EventService eventService;
-    @Autowired
-    UserService userService;
-
-    public ClubController(ClubService clubService, EventService eventService, UserService userService) {
-        this.clubService = clubService;
-        this.eventService = eventService;
-        this.userService = userService;
-    }
+    private final ClubService clubService;
+    private final EventService eventService;
+    private final UserService userService;
 
     @GetMapping()
     public List<ClubDto> getAllClubs() {
         return clubService.getAllClubs();
     }
 
-    @PostMapping()
-    public ClubDto createClub(@RequestBody ClubDto clubDto) {
-        return clubService.saveClub(clubDto);
-    }
-
     @GetMapping("/{clubId}")
     public ClubDto getClub(@PathVariable long clubId) {
         return clubService.findClubById(clubId);
-    }
-
-    @PatchMapping("/{clubId}")
-    public ClubDto editClub(@RequestBody ClubDto clubDto, @PathVariable long clubId) {
-        return clubService.updateClub(clubDto,clubId);
-    }
-
-    @DeleteMapping("/{clubId}")
-    public void deleteClub(@PathVariable long clubId) {
-        clubService.deleteClub(clubId);
     }
 
     @GetMapping("/{clubId}/subscribers")
@@ -64,8 +40,7 @@ public class ClubController {
 
     @PatchMapping("/{clubId}/subscribe")
     public UserDto subscribeToClub(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long clubId) {
-        long userId = userPrincipal.getUserId();
-        return userService.subscribeToClub(userId, clubId);
+        return userService.subscribeToClub(userPrincipal.getUserId(), clubId);
     }
 
     @GetMapping("/{clubId}/events")
@@ -73,32 +48,15 @@ public class ClubController {
         return eventService.findEventsByClub(clubId);
     }
 
-    @PostMapping("/{clubId}/events")
-    public EventDto createEventForClub(@RequestBody EventDto eventDto, @PathVariable long clubId) {
-        return eventService.createEventForClub(eventDto, clubId);
-    }
-
     @GetMapping("/{clubId}/events/{eventId}")
     public EventDto getEventFromClubById(@PathVariable long clubId, @PathVariable long eventId) {
         return eventService.findEventByClubAndEventId(clubId, eventId);
     }
 
-    @PatchMapping("/{clubId}/events/{eventId}")
-    public EventDto editEvent(@RequestBody EventDto eventDto, @PathVariable long clubId, @PathVariable long eventId) {
-        return eventService.updateEvent(eventDto,clubId,eventId);
-    }
-
-    @DeleteMapping("/{clubId}/events/{eventId}")
-    public void deleteEvent(@PathVariable long clubId, @PathVariable long eventId) {
-        eventService.deleteEvent(clubId, eventId);
-    }
-
     @PatchMapping("/{clubId}/events/{eventId}/join")
     public UserDto joinToTheEvent(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long eventId, @PathVariable long clubId) {
-        long userId = userPrincipal.getUserId();
-        return userService.jointToTheEvent(userId, eventId, clubId);
+        return userService.jointToTheEvent(userPrincipal.getUserId(), eventId, clubId);
     }
-
 
     @GetMapping("/{clubId}/events/{eventId}/subscribers")
     public List<UserDto> getUsersJoinedToEvent(@PathVariable long eventId) {

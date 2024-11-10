@@ -32,14 +32,22 @@ public class EventServiceImpl implements com.example.EventsOrganizer.service.Eve
     }
 
     @Override
-    public EventDto createEventForClub(EventDto eventDto,long clubId) {
-        Club club = clubRepo.findClubById(clubId);
-        eventDto.setOrganizingClub(club);
+    @Transactional
+    public EventDto createEventForOwnClub(long userId,EventDto eventDto) {
+        User owner = userRepo.findUserById(userId);
 
-        Event event = mapToEvent(eventDto);
-        eventRepo.save(event);
+        if (owner.getOwnClub() != null) {
 
-        return eventDto;
+            Club club = owner.getOwnClub();
+            eventDto.setOrganizingClub(club);
+
+            Event event = mapToEvent(eventDto);
+            eventRepo.save(event);
+
+            return eventDto;
+        } else {
+            throw new IllegalStateException("У пользователя нет своего клуба.");
+        }
     }
 
     @Override
@@ -55,57 +63,92 @@ public class EventServiceImpl implements com.example.EventsOrganizer.service.Eve
         return mapToEventDto(event);
     }
 
+    @Transactional
     @Override
-    public EventDto updateEvent(EventDto eventDto, long clubId, long eventId) {
-        Event event = eventRepo.findByOrganizingClub_IdAndId(clubId,eventId);
+    public EventDto updateEvent(long userId, EventDto eventDto, long eventId) {
+       User owner = userRepo.findUserById(userId);
 
-         String name = eventDto.getName();
-         String description = eventDto.getDescription();
-         Date beginDate = eventDto.getBeginDate();
-         Date endDate = eventDto.getEndDate();
-         String status = eventDto.getStatus();
+       if (owner.getOwnClub() != null) {
 
-        if (name != null && !name.isBlank()) {
-            event.setName(name);
-        }
-        if (description != null && !description.isBlank()) {
-            event.setDescription(description);
-        }
-        if (beginDate != null) {
-            event.setBeginDate(beginDate);
-        }
+           Club ownClub = owner.getOwnClub();
+           Event event = eventRepo.findByOrganizingClub_IdAndId(ownClub.getId(), eventId);
 
-        if (endDate != null) {
-            event.setEndDate(endDate);
-        }
+           if (event != null) {
 
-        if (status != null && !status.isBlank()) {
-            event.setStatus(status);
-        }
+               String name = eventDto.getName();
+               String description = eventDto.getDescription();
+               Date beginDate = eventDto.getBeginDate();
+               Date endDate = eventDto.getEndDate();
+               String status = eventDto.getStatus();
 
-        eventRepo.save(event);
-        return mapToEventDto(event);
+               if (name != null && !name.isBlank()) {
+                   event.setName(name);
+               }
+               if (description != null && !description.isBlank()) {
+                   event.setDescription(description);
+               }
+               if (beginDate != null) {
+                   event.setBeginDate(beginDate);
+               }
 
+               if (endDate != null) {
+                   event.setEndDate(endDate);
+               }
+
+               if (status != null && !status.isBlank()) {
+                   event.setStatus(status);
+               }
+
+               eventRepo.save(event);
+               return mapToEventDto(event);
+           } else {
+               throw new IllegalStateException("У клуба нет такого ивента.");
+           }
+
+       } else {
+           throw new IllegalStateException("У пользователя нет своего клуба.");
+       }
     }
 
     @Override
     @Transactional
-    public void deleteEvent(long clubId, long eventId) {
-        Event event = eventRepo.findByOrganizingClub_IdAndId(clubId, eventId);
-        eventRepo.delete(event);
+    public void deleteEvent(long userId, long eventId) {
 
-        Club organizingClub = event.getOrganizingClub();
-        organizingClub.getEvents().remove(event);
-        clubRepo.save(organizingClub);
+        User owner = userRepo.findUserById(userId);
 
-        List<User> joinedUsers = event.getJoinedUsers();
+        if (owner.getOwnClub() != null) {
 
-        if (!joinedUsers.isEmpty()) {
-            joinedUsers.forEach(user -> {
-                user.getJoinedEvents().remove(event);
-                userRepo.save(user);
-            });
+            Club ownClub = owner.getOwnClub();
+            Event event = eventRepo.findByOrganizingClub_IdAndId(ownClub.getId(), eventId);
+
+            if (event != null) {
+
+                eventRepo.delete(event);
+
+                Club organizingClub = event.getOrganizingClub();
+                organizingClub.getEvents().remove(event);
+                clubRepo.save(organizingClub);
+
+                List<User> joinedUsers = event.getJoinedUsers();
+
+                if (!joinedUsers.isEmpty()) {
+                    joinedUsers.forEach(user -> {
+                        user.getJoinedEvents().remove(event);
+                        userRepo.save(user);
+                    });
+                }
+            } else {
+                throw new IllegalStateException("У клуба нет такого ивента.");
+            }
+        } else {
+            throw new IllegalStateException("У пользователя нет своего клуба.");
         }
+    }
+
+    @Override
+    public List<EventDto> findAllByUser(long userId) {
+        List<Event> events = eventRepo.findAllByUser(userId);
+        return events.stream().map((event) -> mapToEventDto(event)).collect(Collectors.toList());
     }
 
     private Event mapToEvent(EventDto eventDto) {

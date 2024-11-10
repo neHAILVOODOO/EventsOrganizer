@@ -6,14 +6,16 @@ import java.util.List;
 
 public interface EventService {
 
-    EventDto createEventForClub(EventDto eventDto, long clubId);
+    EventDto createEventForOwnClub(long userId,EventDto eventDto);
 
     List<EventDto> findEventsByClub(long clubId);
 
     EventDto findEventByClubAndEventId(long clubId, long eventId);
 
-    EventDto updateEvent(EventDto eventDto, long clubId, long eventId);
+    EventDto updateEvent(long userId, EventDto eventDto, long eventId);
 
-    void deleteEvent(long clubId, long eventId);
+    void deleteEvent(long userId, long eventId);
+
+    List<EventDto> findAllByUser(long userId);
 
 }

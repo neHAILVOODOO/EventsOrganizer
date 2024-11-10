@@ -1,10 +1,8 @@
 package com.example.EventsOrganizer.security;
 
-import com.example.EventsOrganizer.model.entity.User;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 
-import java.util.Collection;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+
 
 public class UserPrincipalAuthenticationToken extends AbstractAuthenticationToken {
 
