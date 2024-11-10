@@ -35,12 +35,14 @@ public class SecurityConfig {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .formLogin().disable()
-                .antMatcher("/clubs/{clubId}/subscribe")
                 .authorizeHttpRequests((registry) -> registry
                         .requestMatchers(new AntPathRequestMatcher("/auth/login")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/auth/register")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasAuthority("ADMIN")
                         .anyRequest().authenticated()
-                );
+
+                        );
+
 
     return http.build();
     }

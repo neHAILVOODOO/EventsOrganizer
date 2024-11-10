@@ -1,4 +1,4 @@
-package com.example.EventsOrganizer.controller;
+package com.example.EventsOrganizer.controller.User;
 
 
 import com.example.EventsOrganizer.model.dto.ClubDto;
@@ -8,28 +8,20 @@ import com.example.EventsOrganizer.security.UserPrincipal;
 import com.example.EventsOrganizer.service.ClubService;
 import com.example.EventsOrganizer.service.EventService;
 import com.example.EventsOrganizer.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/profile")
-public class ProfileController {
+public class UserProfileController {
 
-    @Autowired
-    UserService userService;
-    @Autowired
-    ClubService clubService;
-    @Autowired
-    EventService eventService;
-
-    public ProfileController(UserService userService, ClubService clubService, EventService eventService ) {
-        this.userService = userService;
-        this.eventService = eventService;
-        this.clubService = clubService;
-    }
+    private final UserService userService;
+    private final ClubService clubService;
+    private final EventService eventService;
 
     @GetMapping
     public UserDto getMyProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -37,26 +29,26 @@ public class ProfileController {
     }
 
     @PatchMapping
-    public UserDto editProfile(@RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public UserDto editProfile(@AuthenticationPrincipal UserPrincipal userPrincipal,@RequestBody UserDto userDto) {
         return userService.updateUser(userDto, userPrincipal.getUserId());
     }
 
-    @GetMapping("/sub/clubs")
+    @GetMapping("/subscribed-clubs")
     public List<ClubDto> getSubscribedClubs(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         return clubService.findAllByUser(userPrincipal.getUserId());
     }
 
-    @GetMapping("/sub/events")
+    @GetMapping("/joined-events")
     public List<EventDto> getJoinedEvents(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         return eventService.findAllByUser(userPrincipal.getUserId());
     }
 
-    @PatchMapping("/sub/clubs/{clubId}/unsubscribe")
+    @PatchMapping("/subscribed-clubs/{clubId}")
     public UserDto unsubscribeFromClub(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long clubId) {
       return userService.unsubscribeFromClub(userPrincipal.getUserId(), clubId);
     }
 
-    @PatchMapping("/sub/events/{eventId}/unsubscribe")
+    @PatchMapping("/joined-events/{eventId}")
     public UserDto leaveTheEvent(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long eventId) {
         return userService.leaveTheEvent(userPrincipal.getUserId(), eventId);
     }

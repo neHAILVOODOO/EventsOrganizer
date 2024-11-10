@@ -3,6 +3,7 @@ package com.example.EventsOrganizer.service.impl;
 import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
+import com.example.EventsOrganizer.model.entity.Role;
 import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.repo.ClubRepo;
 import com.example.EventsOrganizer.repo.EventRepo;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -46,13 +48,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> findAllUsers() {
-        return null;
+        List<User> users = userRepo.findAll();
+        return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
     }
 
     @Override
     public UserDto saveUser(UserDto userDto) {
         User user = mapToUser(userDto);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setRoles(List.of(Role.USER));
         userRepo.save(user);
         return mapToUserDto(user);
     }
@@ -166,6 +170,13 @@ public class UserServiceImpl implements UserService {
         return mapToUserDto(user);
     }
 
+    @Override
+    @Transactional
+    public void deleteUser(long userId) {
+        User user = userRepo.findUserById(userId);
+        userRepo.delete(user);
+    }
+
 
     private User mapToUser(UserDto userDto) {
         User user = User.builder()
@@ -176,11 +187,10 @@ public class UserServiceImpl implements UserService {
                 .surname(userDto.getSurname())
                 .phoneNumber(userDto.getPhoneNumber())
                 .age(userDto.getAge())
+                .roles(userDto.getRoles())
                 .subscribedClubs(userDto.getSubscribedClubs())
                 .ownClub(userDto.getOwnClub())
                 .joinedEvents(userDto.getJoinedEvents())
-
-
                 .build();
 
         return user;
@@ -195,6 +205,7 @@ public class UserServiceImpl implements UserService {
                 .surname(user.getSurname())
                 .phoneNumber(user.getPhoneNumber())
                 .age(user.getAge())
+                .roles(user.getRoles())
                 .subscribedClubs(user.getSubscribedClubs())
                 .ownClub(user.getOwnClub())
                 .joinedEvents(user.getJoinedEvents())

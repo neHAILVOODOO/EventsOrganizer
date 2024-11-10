@@ -10,7 +10,6 @@ public interface ClubRepo extends JpaRepository<Club,Long> {
 
     Club findClubById(long clubId);
 
-
     @Query("SELECT c FROM Club c JOIN c.users u ON u.id = :userId")
     List<Club> findAllByUser(long userId);
 

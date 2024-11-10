@@ -28,4 +28,6 @@ public interface UserService {
 
     UserDto leaveTheEvent(long userId, long eventId);
 
+    void deleteUser(long userId);
+
 }

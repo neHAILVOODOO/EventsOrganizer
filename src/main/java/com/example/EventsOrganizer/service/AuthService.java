@@ -1,39 +1,31 @@
-package com.example.EventsOrganizer.controller;
+package com.example.EventsOrganizer.service;
 
-
-import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.security.JwtIssuer;
 import com.example.EventsOrganizer.security.UserPrincipal;
-import com.example.EventsOrganizer.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
+@Service
 @RequiredArgsConstructor
-@RequestMapping("/auth")
-public class AuthController {
+public class AuthService {
 
     private final JwtIssuer jwtIssuer;
     private final AuthenticationManager authenticationManager;
-    private final UserService userService;
 
-    @PostMapping("/login")
-    public String login(@RequestBody User user) {
+    public String attemptLogin(String login, String password) {
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getLogin(), user.getPassword())
+                new UsernamePasswordAuthenticationToken(login, password)
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -42,15 +34,13 @@ public class AuthController {
         List<String> roles = principal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-
+        System.out.println("roles: " + roles);
 
         String token = jwtIssuer.issue(principal.getUserId(), principal.getLogin(), roles);
 
         return token;
     }
 
-    @PostMapping("/register")
-    public UserDto register(@RequestBody UserDto userDto) {
-        return userService.saveUser(userDto);
-    }
+
+
 }

@@ -34,11 +34,26 @@ public class ClubServiceImpl implements ClubService {
         this.eventRepo = eventRepo;
     }
 
+    @Transactional
     @Override
-    public ClubDto saveClub(ClubDto clubDto) {
-       Club club = mapToClub(clubDto);
-       clubRepo.save(club);
-       return mapToClubDto(club);
+    public ClubDto saveClub(long userId, ClubDto clubDto) {
+      User user = userRepo.findUserById(userId);
+
+      if (user.getOwnClub() == null) {
+
+          Club club = mapToClub(clubDto);
+          club.setOwner(user);
+          clubRepo.save(club);
+
+          return mapToClubDto(club);
+
+      } else {
+
+          throw new IllegalStateException("У пользователя уже есть свой клуб.");
+
+      }
+
+
     }
 
     @Override
@@ -54,56 +69,64 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public ClubDto updateClub(ClubDto clubDto, long clubId) {
+    @Transactional
+    public ClubDto updateOwnerClub(long userId, ClubDto clubDto) {
+
+        User user = userRepo.findUserById(userId);
+
+        if (user.getOwnClub() != null) {
+
+            Club club = clubRepo.findClubById(user.getOwnClub().getId());
+
+            changeClubToClubDtoData(club, clubDto);
+            clubRepo.save(club);
+            return mapToClubDto(club);
+
+        } else {
+            throw new IllegalStateException("У пользователя нет своего клуба.");
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public ClubDto updateClub(long clubId, ClubDto clubDto) {
+
         Club club = clubRepo.findClubById(clubId);
 
-        String name = clubDto.getName();
-        String description = clubDto.getDescription();
-        String thematics = clubDto.getThematics();
+        if (club != null) {
 
-        if (name != null && !name.isBlank()) {
-            club.setName(name);
-        }
-        if (description != null && !description.isBlank()) {
-            club.setDescription(description);
-        }
-        if (thematics != null && !thematics.isBlank()) {
-            club.setThematics(thematics);
-        }
+            changeClubToClubDtoData(club, clubDto);
+            clubRepo.save(club);
+            return mapToClubDto(club);
 
-        clubRepo.save(club);
-        return mapToClubDto(club);
+        } else {
+            throw new IllegalStateException("Клуба не существ");
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteOwnClub(long userId) {
+        User owner = userRepo.findUserById(userId);
+
+        if (owner.getOwnClub() != null) {
+
+            Club club = owner.getOwnClub();
+            deleteClub(club);
+
+        } else {
+            throw new IllegalStateException("У пользователя нет своего клуба.");
+        }
     }
 
     @Override
     @Transactional
-    public void deleteClub(long clubId) {
+    public void adminDeleteClub(long clubId) {
+
         Club club = clubRepo.findClubById(clubId);
-        clubRepo.delete(club);
-
-        User owner = userRepo.findUserById(club.getOwner().getId());
-        owner.setOwnClub(null);
-        userRepo.save(owner);
-
-        List<Event> events = club.getEvents();
-        events.forEach(event -> {
-
-            List<User> joinedUsers = event.getJoinedUsers();
-            joinedUsers.forEach(user -> {
-                user.getJoinedEvents().remove(event);
-                userRepo.save(user);
-            });
-
-
-            eventRepo.delete(event);
-        });
-
-        List<User> subscribers = club.getUsers();
-
-        subscribers.forEach(user -> {
-            user.getSubscribedClubs().remove(club);
-            userRepo.save(user);
-        });
+        deleteClub(club);
 
     }
 
@@ -141,6 +164,55 @@ public class ClubServiceImpl implements ClubService {
                 .build();
 
         return clubDto;
+    }
+
+    private void changeClubToClubDtoData(Club club, ClubDto clubDto) {
+
+        String name = clubDto.getName();
+        String description = clubDto.getDescription();
+        String thematics = clubDto.getThematics();
+
+        if (name != null && !name.isBlank()) {
+            club.setName(name);
+        }
+        if (description != null && !description.isBlank()) {
+            club.setDescription(description);
+        }
+        if (thematics != null && !thematics.isBlank()) {
+            club.setThematics(thematics);
+        }
+
+    }
+
+    private void deleteClub(Club club) {
+
+        User owner = club.getOwner();
+        clubRepo.delete(club);
+
+
+        if (owner != null) {
+            owner.setOwnClub(null);
+            userRepo.save(owner);
+        }
+
+        List<Event> events = club.getEvents();
+        events.forEach(event -> {
+
+            List<User> joinedUsers = event.getJoinedUsers();
+            joinedUsers.forEach(user -> {
+                user.getJoinedEvents().remove(event);
+                userRepo.save(user);
+            });
+            eventRepo.delete(event);
+        });
+
+        List<User> subscribers = club.getUsers();
+
+        subscribers.forEach(user -> {
+            user.getSubscribedClubs().remove(club);
+            userRepo.save(user);
+        });
+
     }
 
 }
