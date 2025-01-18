@@ -10,7 +10,6 @@ import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

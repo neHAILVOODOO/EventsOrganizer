@@ -47,5 +47,9 @@ docker run -p 3307:3306 --name sqlcont --net docknet -e MYSQL_ROOT_PASSWORD=best
 ./gradlew clean build 
 ```
 ```
-docker run -p 8080:8080 --name eventsorganizercont --net docknet -e MYSQL_HOST=sqlcont -e MYSQL_PORT=3306 -e MYSQL_DATABASE=eventsorganizer_db -e MYSQL_ROOT_PASSWORD=bestuser -d eventsorganizer 
+docker build -t eventsorganizer .
+```
+
+```
+docker run -p 8080:8080 --name eventsorganizercont --net docknet -e MYSQL_HOST=sqlcont -e MYSQL_PORT=3306 -e MYSQL_DATABASE=eventsorganizer_db -e SPRING_DATASOURCE_USERNAME=root -e MYSQL_ROOT_PASSWORD=bestuser  -e SPRING_DATASOURCE_URL=jdbc:mysql://sqlcont:3306/eventsorganizer_db  -d eventsorganizer
 ```

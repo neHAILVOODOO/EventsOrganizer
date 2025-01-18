@@ -25,7 +25,6 @@ public class UserDetailsService implements org.springframework.security.core.use
 
         User user = userRepo.findUserByLogin(username);
 
-        System.out.println(user.getRoles());
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
                 .collect(Collectors.toList());

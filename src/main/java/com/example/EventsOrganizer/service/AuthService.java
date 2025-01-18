@@ -32,7 +32,6 @@ public class AuthService {
         List<String> roles = principal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        System.out.println("roles: " + roles);
 
         String token = jwtIssuer.issue(principal.getUserId(), principal.getLogin(), roles);
 
