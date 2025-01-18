@@ -1,0 +1,343 @@
+databaseChangeLog:
+  - changeSet:
+      id:  create-table-clubs
+      author:  VOODOO
+      comment:  clubs table migration
+      changes:
+        - createTable:
+            tableName:  clubs
+            columns:
+              - column:
+                  name:  id
+                  type:  int
+                  autoIncrement:  true
+                  constraints:
+                    primaryKey:  true
+                    nullable:  false
+              - column:
+                  name:  name
+                  type:  varchar(255)
+                  constraints:
+                    nullable:  false
+              - column:
+                  name:  description
+                  type:  varchar(255)
+              - column:
+                  name:  thematics
+                  type:  varchar(255)
+              - column:
+                  name:  owner_id
+                  type:  int
+
+
+  - changeSet:
+      id:  create-table-users
+      author:  VOODOO
+      comment: users table migration
+      changes:
+        - createTable:
+            tableName:  users
+            columns:
+              - column:
+                  name:  id
+                  type:  int
+                  autoIncrement:  true
+                  constraints:
+                    primaryKey:  true
+                    nullable:  false
+              - column:
+                  name:  name
+                  type:  varchar(255)
+                  constraints:
+                    nullable:  false
+              - column:
+                  name:  age
+                  type:  int
+              - column:
+                  name:  login
+                  type:  varchar(255)
+              - column:
+                  name:  password
+                  type:  varchar(255)
+              - column:
+                  name:  phone_number
+                  type:  varchar(255)
+              - column:
+                  name:  surname
+                  type:  varchar(255)
+
+
+        - addForeignKeyConstraint:
+            baseTableName:  clubs
+            baseColumnNames:  owner_id
+            referencedTableName:  users
+            referencedColumnNames:  id
+            constraintName:  fk_club_owner
+
+
+  - changeSet:
+      id:  create-table-events
+      author:  VOODOO
+      comment: events table migration
+      changes:
+        - createTable:
+            tableName:  events
+            columns:
+              - column:
+                  name:  id
+                  type:  int
+                  autoIncrement:  true
+                  constraints:
+                    primaryKey:  true
+                    nullable:  false
+              - column:
+                  name:  name
+                  type:  varchar(255)
+              - column:
+                  name:  description
+                  type:  varchar(255)
+              - column:
+                  name:  begin_date
+                  type:  date
+              - column:
+                  name:  end_date
+                  type:  date
+              - column:
+                  name:  status
+                  type:  varchar(255)
+              - column:
+                  name:  organizing_club_id
+                  type:  int
+
+        - addForeignKeyConstraint:
+            baseTableName:  events
+            baseColumnNames:  organizing_club_id
+            referencedTableName:  clubs
+            referencedColumnNames:  id
+            constraintName:  fk_organizing_club
+
+
+  - changeSet:
+      id:  create-table-users-subscribed-to-clubs
+      author:  VOODOO
+      comment: users subscribed to clubs table migration
+      changes:
+        - createTable:
+            tableName:  users_subscribed_to_clubs
+            columns:
+              - column:
+                  name:  user_id
+                  type:  int
+                  constraints:
+                    nullable:  false
+              - column:
+                  name:  subscribed_club_id
+                  type:  int
+                  constraints:
+                    nullable:  false
+
+        - addForeignKeyConstraint:
+            baseTableName: users_subscribed_to_clubs
+            baseColumnNames: subscribed_club_id
+            referencedTableName: clubs
+            referencedColumnNames: id
+            constraintName: fk_users_subscribed_to_clubs_club
+
+        - addForeignKeyConstraint:
+            baseTableName: users_subscribed_to_clubs
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_users_subscribed_to_clubs_user
+
+
+  - changeSet:
+      id:  create-table-users-joined_the_events
+      author:  VOODOO
+      comment: users joined to the events table migration
+      changes:
+        - createTable:
+            tableName:  users_joined_the_events
+            columns:
+              - column:
+                  name:  user_id
+                  type:  int
+                  constraints:
+                    nullable:  false
+              - column:
+                  name:  joined_event_id
+                  type:  int
+                  constraints:
+                    nullable:  false
+
+        - addForeignKeyConstraint:
+            baseTableName: users_joined_the_events
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_users_joined_the_events_user
+
+        - addForeignKeyConstraint:
+            baseTableName: users_joined_the_events
+            baseColumnNames: joined_event_id
+            referencedTableName: events
+            referencedColumnNames: id
+            constraintName: fk_users_joined_the_events_event
+
+
+  - changeSet:
+      id:  create-table-user-role
+      author:  VOODOO
+      comment: user role table migration
+      changes:
+        - createTable:
+            tableName:  user_role
+            columns:
+              - column:
+                  name:  user_id
+                  type:  int
+                  constraints:
+                    nullable:  false
+              - column:
+                  name:  roles
+                  type:  varchar(255)
+                  constraints:
+                    nullable:  false
+
+        - addForeignKeyConstraint:
+            baseTableName: user_role
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_role
+
+  - changeSet:
+      id:  insert-into-users
+      author:  VOODOO
+      comment:  insert into users table
+      changes:
+        - insert:
+            tableName:  users
+            columns:
+              - column:
+                  name:  login
+                  value:  jimmy
+              - column:
+                  name:  password
+                  value:  $2a$10$kFrEeecxVhDRN4HYY6EBAeOkZLKNKBvqpdbRflWI8Jscu7FIfuCRG
+              - column:
+                  name: name
+                  value: Jimmy
+              - column:
+                  name: surname
+                  value: Neutron
+              - column:
+                  name: phone_number
+                  value: 88005553535
+              - column:
+                  name: age
+                  value: 15
+
+        - insert:
+            tableName:  users
+            columns:
+              - column:
+                  name:  login
+                  value:  vladimir
+              - column:
+                  name:  password
+                  value:  $2a$10$kFrEeecxVhDRN4HYY6EBAeOkZLKNKBvqpdbRflWI8Jscu7FIfuCRG
+              - column:
+                  name: name
+                  value: Vladimir
+              - column:
+                  name: surname
+                  value: Realman
+              - column:
+                  name: phone_number
+                  value: 89003451234
+              - column:
+                  name: age
+                  value: 27
+
+
+
+  - changeSet:
+      id:  insert-into-clubs
+      author:  VOODOO
+      comment:  insert into clubs table
+      changes:
+        - insert:
+            tableName:  clubs
+            columns:
+              - column:
+                  name:  name
+                  value:  Sport Club
+              - column:
+                  name:  description
+                  value:  Club for real sportsmen
+              - column:
+                  name: thematics
+                  value: Sport
+              - column:
+                  name: owner_id
+                  value: 2
+
+
+  - changeSet:
+      id: insert-into-events
+      author: VOODOO
+      comment: insert into events table
+      changes:
+        - insert:
+            tableName: events
+            columns:
+              - column:
+                  name: name
+                  value: Марафон
+              - column:
+                  name: description
+                  value: Марафон для всех любителей бегать
+              - column:
+                  name: begin_date
+                  value: '2025-07-09'
+              - column:
+                  name: end_date
+                  value: '2025-07-10'
+              - column:
+                  name: status
+                  value: upcoming
+              - column:
+                  name: organizing_club_id
+                  value: 1
+
+  - changeSet:
+      id: insert-into-users-subscribed-to-clubs
+      author: VOODOO
+      comment: subscribe Jimmy to club
+      changes:
+        - insert:
+            tableName: users_subscribed_to_clubs
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: subscribed_club_id
+                  value: 1
+
+  - changeSet:
+      id: insert-into-users-joined-the-events
+      author: VOODOO
+      comment: join Jimmy to the event
+      changes:
+        - insert:
+            tableName: users_joined_the_events
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: joined_event_id
+                  value: 1
+

@@ -7,7 +7,7 @@
 Также пользователям доступен профиль со всей информацией о них, которую они могут редактировать.
 Администраторы имеют возможность редактировать и удалять любые клубы, а также изменять данные профиля пользователя.
 
-Также реализованы регистрация и авторизация
+Также реализованы регистрация и авторизация.
 
 #### Технологии использованы:
 - Java 11
@@ -17,8 +17,35 @@
 - Spring REST
 - MySQL
 - Hibernate
+- Liquibase
 - Gradle
 - Lombok
+- Docker
 <hr>
 
+### Инструкция по установке и упаковке в Docker контейнер:
 
+#### 1) Клонирование репозитория
+
+```
+git clone https://github.com/neHAILVOODOO/EventsOrganizer.git
+```
+```
+cd EventsOrganizer
+```
+#### 2) Установка mysql image и контейнера БД
+
+```
+docker pull mysql  
+```
+```
+docker run -p 3307:3306 --name sqlcont --net docknet -e MYSQL_ROOT_PASSWORD=bestuser -e MYSQL_DATABASE=eventsorganizer_db -d mysql
+```
+
+#### 3) Упаковка программы в контейнер и ее запуск:
+```
+./gradlew clean build 
+```
+```
+docker run -p 8080:8080 --name eventsorganizercont --net docknet -e MYSQL_HOST=sqlcont -e MYSQL_PORT=3306 -e MYSQL_DATABASE=eventsorganizer_db -e MYSQL_ROOT_PASSWORD=bestuser -d eventsorganizer 
+```
