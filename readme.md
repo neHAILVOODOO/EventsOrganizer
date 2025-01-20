@@ -25,7 +25,7 @@
 
 ### Схема таблицы бд
 
-![alt text](screenshots/tableScheme.png "Список всех заявок")
+![alt text](screenshots/tableScheme.png "Таблица БД")
 
 <hr>
 
