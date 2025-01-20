@@ -23,7 +23,7 @@
 - Docker
 <hr>
 
-### Схема таблицы бд
+### Схема бд
 
 ![alt text](screenshots/tableScheme.png "Таблица БД")
 
