@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserService {
         return mapToUserDto(user);
     }
 
+    @Transactional
     @Override
     public List<UserDto> findAllUsers() {
         List<User> users = userRepo.findAll();
