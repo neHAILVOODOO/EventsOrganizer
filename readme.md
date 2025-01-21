@@ -49,9 +49,7 @@ docker run -p 3307:3306 --name sqlcont --net docknet -e MYSQL_ROOT_PASSWORD=best
 ```
 
 #### 3) Упаковка программы в контейнер и ее запуск:
-```
-./gradlew clean build 
-```
+
 ```
 docker build -t eventsorganizer .
 ```
