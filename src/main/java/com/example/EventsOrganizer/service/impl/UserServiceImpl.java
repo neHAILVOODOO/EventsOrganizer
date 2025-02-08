@@ -46,10 +46,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto saveUser(UserDto userDto) {
         User user = mapToUser(userDto);
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        user.setRoles(List.of(Role.USER));
-        userRepo.save(user);
-        return mapToUserDto(user);
+
+        if (existsByUser(userDto.getLogin())) {
+            throw new IllegalStateException("Пользователь с таким логином уже существует.");
+        } else {
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            user.setRoles(List.of(Role.USER));
+            userRepo.save(user);
+            return mapToUserDto(user);
+        }
     }
 
     @Override
@@ -203,6 +208,10 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         return userDto;
+    }
+
+    public Boolean existsByUser(String login) {
+        return userRepo.existsUserByLogin(login);
     }
 
 }

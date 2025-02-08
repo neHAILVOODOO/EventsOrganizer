@@ -4,6 +4,7 @@ import com.example.EventsOrganizer.security.JwtIssuer;
 import com.example.EventsOrganizer.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,23 +22,25 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public String attemptLogin(String login, String password) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(login, password)
+            );
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(login, password)
-        );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+            List<String> roles = principal.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
 
-        List<String> roles = principal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+            String token = jwtIssuer.issue(principal.getUserId(), principal.getLogin(), roles);
+            return token;
 
-        String token = jwtIssuer.issue(principal.getUserId(), principal.getLogin(), roles);
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Неверный логин или пароль");
+        }
 
-        return token;
+
     }
-
-
-
 }

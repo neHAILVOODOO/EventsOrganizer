@@ -15,6 +15,7 @@
 - Spring Boot
 - Spring Security
 - Spring REST
+- Logback
 - MySQL
 - Hibernate
 - Liquibase

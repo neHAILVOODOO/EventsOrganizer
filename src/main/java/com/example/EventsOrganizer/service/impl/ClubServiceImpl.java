@@ -40,9 +40,7 @@ public class ClubServiceImpl implements ClubService {
           return mapToClubDto(club);
 
       } else {
-
           throw new IllegalStateException("У пользователя уже есть свой клуб.");
-
       }
 
 
