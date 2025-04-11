@@ -1,9 +1,10 @@
 package com.example.EventsOrganizer.service.impl;
 
+import com.example.EventsOrganizer.mapper.UserMapper;
+import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
-import com.example.EventsOrganizer.model.entity.Role;
 import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.repo.ClubRepo;
 import com.example.EventsOrganizer.repo.EventRepo;
@@ -26,7 +27,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final ClubRepo clubRepo;
     private final EventRepo eventRepo;
+
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
 
 
@@ -44,17 +47,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto saveUser(UserDto userDto) {
-        User user = mapToUser(userDto);
+    public void saveUser(CreateUserDto createUserDto) {
 
-        if (existsByUser(userDto.getLogin())) {
-            throw new IllegalStateException("Пользователь с таким логином уже существует.");
-        } else {
-            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-            user.setRoles(List.of(Role.USER));
-            userRepo.save(user);
-            return mapToUserDto(user);
+        if (existsByUser(createUserDto.getLogin())) {
+            throw new IllegalStateException("Пользователь с таким логином уже существует");
         }
+            User user = userMapper.mapCreateUserDtoToUser(createUserDto);
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userRepo.save(user);
+
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.example.EventsOrganizer.security;
 
-import com.example.EventsOrganizer.service.UserDetailsService;
+import com.example.EventsOrganizer.service.impl.UserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

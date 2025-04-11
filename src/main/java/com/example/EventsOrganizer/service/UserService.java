@@ -1,5 +1,6 @@
 package com.example.EventsOrganizer.service;
 
+import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.UserDto;
 
 import java.util.List;
@@ -10,7 +11,7 @@ public interface UserService {
 
     List<UserDto> findAllUsers();
 
-    UserDto saveUser(UserDto userDto);
+    void saveUser(CreateUserDto createUserDto);
 
     List<UserDto> findAllBySubscribedClubId(long clubId);
 

@@ -1,3 +1,5 @@
+убрать data в сущностях
+
 ## Java Spring REST приложение   
 <hr>
 

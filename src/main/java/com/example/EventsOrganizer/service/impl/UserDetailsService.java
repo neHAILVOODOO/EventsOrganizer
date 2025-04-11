@@ -1,4 +1,4 @@
-package com.example.EventsOrganizer.service;
+package com.example.EventsOrganizer.service.impl;
 
 import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.repo.UserRepo;
