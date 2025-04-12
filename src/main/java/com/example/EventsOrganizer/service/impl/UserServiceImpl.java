@@ -3,6 +3,8 @@ package com.example.EventsOrganizer.service.impl;
 import com.example.EventsOrganizer.mapper.UserMapper;
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.UserDto;
+import com.example.EventsOrganizer.model.dto.user.GetUserDto;
+import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
@@ -11,18 +13,23 @@ import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.internal.Function;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
 
     private final UserRepo userRepo;
     private final ClubRepo clubRepo;
@@ -31,22 +38,20 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-
-
     @Override
-    public UserDto findById(long userId) {
-        User user = userRepo.findUserById(userId);
-        return mapToUserDto(user);
-    }
-
     @Transactional
-    @Override
-    public List<UserDto> findAllUsers() {
-        List<User> users = userRepo.findAll();
-        return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
+    public GetUserDto findById(long userId) {
+        User user = userRepo.findUserById(userId);
+        return userMapper.mapUserToGetUserDto(user);
     }
 
     @Override
+    public Page<GetUserForListDto> findAllUsers(int page, int size, String sortBy, String direction) {
+        return findUsers(page, size, sortBy, direction, userRepo::findAll);
+    }
+
+    @Override
+    @Transactional
     public void saveUser(CreateUserDto createUserDto) {
 
         if (existsByUser(createUserDto.getLogin())) {
@@ -59,18 +64,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public List<UserDto> findAllBySubscribedClubId(long clubId) {
         List<User> users = userRepo.findAllBySubscribedClubId(clubId);
         return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public List<UserDto> findAllByJoinedEventId(long eventId) {
         List<User> users = userRepo.findAllByJoinedEventId(eventId);
         return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public UserDto updateUser(UserDto userDto, long userId) {
         User user = userRepo.findUserById(userId);
 
@@ -105,8 +113,8 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Transactional
     @Override
+    @Transactional
     public UserDto subscribeToClub(long userId, long clubId) {
         User user = userRepo.findUserById(userId);
         Club club = clubRepo.findClubById(clubId);
@@ -120,14 +128,11 @@ public class UserServiceImpl implements UserService {
             userRepo.save(user);
             return mapToUserDto(user);
         }
-
-
-
-
     }
 
-    @Transactional
+
     @Override
+    @Transactional
     public UserDto jointToTheEvent(long userId, long eventId, long clubId) {
        User user = userRepo.findUserById(userId);
        Event event = eventRepo.findByOrganizingClub_IdAndId(clubId, eventId);
@@ -143,8 +148,9 @@ public class UserServiceImpl implements UserService {
        }
     }
 
-    @Transactional
+
     @Override
+    @Transactional
     public UserDto unsubscribeFromClub(long userId, long clubId) {
         User user = userRepo.findUserById(userId);
         Club club = clubRepo.findClubById(clubId);
@@ -155,8 +161,9 @@ public class UserServiceImpl implements UserService {
         return mapToUserDto(user);
     }
 
-    @Transactional
+
     @Override
+    @Transactional
     public UserDto leaveTheEvent(long userId, long eventId) {
         User user = userRepo.findUserById(userId);
         Event event = eventRepo.findById(eventId);
@@ -175,23 +182,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private User mapToUser(UserDto userDto) {
-        User user = User.builder()
 
-                .login(userDto.getLogin())
-                .password(userDto.getPassword())
-                .name(userDto.getName())
-                .surname(userDto.getSurname())
-                .phoneNumber(userDto.getPhoneNumber())
-                .age(userDto.getAge())
-                .roles(userDto.getRoles())
-                .subscribedClubs(userDto.getSubscribedClubs())
-                .ownClub(userDto.getOwnClub())
-                .joinedEvents(userDto.getJoinedEvents())
-                .build();
-
-        return user;
-    }
 
     private UserDto mapToUserDto(User user) {
         UserDto userDto = UserDto.builder()
@@ -210,6 +201,33 @@ public class UserServiceImpl implements UserService {
 
         return userDto;
     }
+
+    private Sort createSort(String sortBy, String direction) {
+        Set<String> allowedFields = Set.of("id", "name");
+        String validSortBy = allowedFields.contains(sortBy) ? sortBy : "id";
+
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        return Sort.by(sortDirection, validSortBy);
+    }
+
+    private Page<GetUserForListDto> findUsers(
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            Function<Pageable, Page<User>> userFinder
+    ) {
+        int validSize = List.of(5, 10, 15).contains(size) ? size : 10;
+        Sort sort = createSort(sortBy, direction);
+        Pageable pageable = PageRequest.of(page, validSize, sort);
+
+        return userFinder.apply(pageable)
+                .map(userMapper::mapUserToGetUserForListDto);
+    }
+
 
     public Boolean existsByUser(String login) {
         return userRepo.existsUserByLogin(login);

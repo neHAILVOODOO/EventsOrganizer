@@ -1,6 +1,8 @@
 package com.example.EventsOrganizer.service;
 
 import com.example.EventsOrganizer.model.dto.EventDto;
+import com.example.EventsOrganizer.model.dto.event.GetEventForListDto;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -16,6 +18,6 @@ public interface EventService {
 
     void deleteEvent(long userId, long eventId);
 
-    List<EventDto> findAllByUser(long userId);
+    Page<GetEventForListDto> findAllByUser(long userId, int page, int size, String sortBy, String direction);
 
 }

@@ -2,6 +2,9 @@ package com.example.EventsOrganizer.repo;
 
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
+import com.example.EventsOrganizer.model.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,7 +18,8 @@ public interface EventRepo extends JpaRepository<Event, Long> {
 
     Event findById(long eventId);
 
-    @Query("SELECT e FROM Event e JOIN e.joinedUsers u ON u.id = :userId")
-    List<Event> findAllByUser(long userId);
+    Page<Event> findAllByUser(User user, Pageable pageable);
+
+
 
 }
