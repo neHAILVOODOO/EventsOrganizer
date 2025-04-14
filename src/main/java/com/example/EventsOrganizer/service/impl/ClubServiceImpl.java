@@ -1,6 +1,9 @@
 package com.example.EventsOrganizer.service.impl;
 
+import com.example.EventsOrganizer.mapper.ClubMapper;
 import com.example.EventsOrganizer.model.dto.ClubDto;
+import com.example.EventsOrganizer.model.dto.club.GetClubForListDto;
+import com.example.EventsOrganizer.model.dto.event.GetEventForListDto;
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
@@ -9,10 +12,16 @@ import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.service.ClubService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 
@@ -25,9 +34,11 @@ public class ClubServiceImpl implements ClubService {
     private final UserRepo userRepo;
     private final EventRepo eventRepo;
 
+    private final ClubMapper clubMapper;
 
-    @Transactional
+
     @Override
+    @Transactional
     public ClubDto saveClub(long userId, ClubDto clubDto) {
       User user = userRepo.findUserById(userId);
 
@@ -53,6 +64,7 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
+    @Transactional
     public ClubDto findClubById(long clubId) {
         Club club = clubRepo.findClubById(clubId);
         return mapToClubDto(club);
@@ -117,13 +129,12 @@ public class ClubServiceImpl implements ClubService {
 
         Club club = clubRepo.findClubById(clubId);
         deleteClub(club);
-
     }
 
     @Override
-    public List<ClubDto> findAllByUser(long userId) {
-        List<Club> clubs = clubRepo.findAllByUser(userId);
-        return clubs.stream().map((club) -> mapToClubDto(club)).collect(Collectors.toList());
+    @Transactional
+    public Page<GetClubForListDto> findAllByUser(long userId, int page, int size, String sortBy, String direction) {
+        return findClubsByUserAndFunction(userId, page, size, sortBy, direction, clubRepo::findAllByUser);
     }
 
 
@@ -203,6 +214,37 @@ public class ClubServiceImpl implements ClubService {
             userRepo.save(user);
         });
 
+    }
+
+
+    private Sort createSort(String sortBy, String direction) {
+        Set<String> allowedFields = Set.of("id", "name");
+        String validSortBy = allowedFields.contains(sortBy) ? sortBy : "id";
+
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        return Sort.by(sortDirection, validSortBy);
+    }
+
+    private Page<GetClubForListDto> findClubsByUserAndFunction(
+            long userId,
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            BiFunction<User, Pageable, Page<Club>> eventFinder
+    ) {
+        int validSize = List.of(5, 10, 15).contains(size) ? size : 10;
+        Sort sort = createSort(sortBy, direction);
+        Pageable pageable = PageRequest.of(page, validSize, sort);
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new NullPointerException("Пользователь не найден"));
+
+        return eventFinder.apply(user, pageable)
+                .map(clubMapper::mapClubToGetClubForListDto);
     }
 
 }

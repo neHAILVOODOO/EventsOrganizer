@@ -10,12 +10,10 @@ import com.example.EventsOrganizer.repo.ClubRepo;
 import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -156,7 +154,7 @@ public class EventServiceImpl implements com.example.EventsOrganizer.service.Eve
     @Override
     @Transactional
     public Page<GetEventForListDto> findAllByUser(long userId, int page, int size, String sortBy, String direction) {
-        return findEventsByUser(userId, page, size, sortBy, direction, eventRepo::findAllByUser);
+        return findEventsByUserAndFunction(userId, page, size, sortBy, direction, eventRepo::findAllByUser);
     }
 
     private Event mapToEvent(EventDto eventDto) {
@@ -201,7 +199,7 @@ public class EventServiceImpl implements com.example.EventsOrganizer.service.Eve
         return Sort.by(sortDirection, validSortBy);
     }
 
-    private Page<GetEventForListDto> findEventsByUser(
+    private Page<GetEventForListDto> findEventsByUserAndFunction(
             long userId,
             int page,
             int size,

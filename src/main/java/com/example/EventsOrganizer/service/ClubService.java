@@ -1,6 +1,8 @@
 package com.example.EventsOrganizer.service;
 
 import com.example.EventsOrganizer.model.dto.ClubDto;
+import com.example.EventsOrganizer.model.dto.club.GetClubForListDto;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -20,6 +22,6 @@ public interface ClubService {
 
     void adminDeleteClub(long clubId);
 
-    List<ClubDto> findAllByUser(long userId);
+    Page<GetClubForListDto> findAllByUser(long userId, int page, int size, String sortBy, String direction);
 
 }

@@ -1,8 +1,6 @@
 package com.example.EventsOrganizer.controller.User;
 
-import com.example.EventsOrganizer.model.dto.ClubDto;
-import com.example.EventsOrganizer.model.dto.EventDto;
-import com.example.EventsOrganizer.model.dto.UserDto;
+import com.example.EventsOrganizer.model.dto.club.GetClubForListDto;
 import com.example.EventsOrganizer.model.dto.event.GetEventForListDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,15 +35,15 @@ public class UserController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String direction
     ) {
-
         log.info("Получен запрос вывод списка пользователей {}", request.getRequestURI());
         return ResponseEntity.ok(userService.findAllUsers(page, size, sortBy, direction));
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<GetUserDto> getUser(
-            @PathVariable long userId, HttpServletRequest request) {
-
+            @PathVariable long userId,
+            HttpServletRequest request
+    ) {
         log.info("Получен запрос на вывод информации о пользователе id{} {}", userId, request.getRequestURI());
         return ResponseEntity.ok(userService.findById(userId));
     }
@@ -60,22 +57,22 @@ public class UserController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String direction
     ) {
-
         log.info("Получен запрос на вывод мероприятий, на которые записан пользователь id{} {}", userId, request.getRequestURI());
         return ResponseEntity.ok(eventService.findAllByUser(userId, page, size, sortBy, direction));
-
     }
 
-    //Нормальный дто
-    //Респонс энтити
-    //Пагинация
 
     @GetMapping("/{userId}/subscribed-clubs")
-    public List<ClubDto> getClubsByUser(@PathVariable long userId, HttpServletRequest request) {
-
+    public ResponseEntity<Page<GetClubForListDto>> getClubsByUser(
+            @PathVariable long userId,
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") @Min(5) @Max(15) int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
         log.info("Получен на вывод клубов, на которые подписан пользователь id{} {}", userId, request.getRequestURI());
-        return clubService.findAllByUser(userId);
-
+        return ResponseEntity.ok(clubService.findAllByUser(userId, page, size, sortBy, direction));
     }
 
 
