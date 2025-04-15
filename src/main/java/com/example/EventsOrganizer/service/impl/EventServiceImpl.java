@@ -1,15 +1,22 @@
 package com.example.EventsOrganizer.service.impl;
 
+import com.example.EventsOrganizer.exception.NoSuchObjectException;
+import com.example.EventsOrganizer.exception.NotFoundException;
 import com.example.EventsOrganizer.mapper.EventMapper;
-import com.example.EventsOrganizer.model.dto.EventDto;
+import com.example.EventsOrganizer.model.dto.event.CreateEventDto;
+import com.example.EventsOrganizer.model.dto.event.GetEventDto;
 import com.example.EventsOrganizer.model.dto.event.GetEventForListDto;
+import com.example.EventsOrganizer.model.dto.event.UpdateEventInfoDto;
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.repo.ClubRepo;
 import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
+import com.example.EventsOrganizer.service.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.cglib.core.internal.Function;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,16 +24,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
-public class EventServiceImpl implements com.example.EventsOrganizer.service.EventService {
+public class EventServiceImpl implements EventService {
 
     private final EventRepo eventRepo;
     private final ClubRepo clubRepo;
@@ -36,157 +39,92 @@ public class EventServiceImpl implements com.example.EventsOrganizer.service.Eve
 
     @Override
     @Transactional
-    public EventDto createEventForOwnClub(long userId,EventDto eventDto) {
-        User owner = userRepo.findUserById(userId);
+    public void createEventForOwnClub(long userId, CreateEventDto createEventDto) {
+        User owner = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
-        if (owner.getOwnClub() != null) {
+        Club club = clubRepo.findClubByOwner(owner)
+                .orElseThrow(() -> new NoSuchObjectException("У пользователя нет своего клуба"));
 
-            Club club = owner.getOwnClub();
-            eventDto.setOrganizingClub(club);
+        Event event = eventMapper.mapCreateEventDtoToEvent(createEventDto);
+        event.setOrganizingClub(club);
 
-            Event event = mapToEvent(eventDto);
-            eventRepo.save(event);
-
-            return eventDto;
-        } else {
-            throw new IllegalStateException("У пользователя нет своего клуба.");
-        }
+        eventRepo.save(event);
     }
 
     @Override
     @Transactional
-    public List<EventDto> findEventsByClub(long clubId) {
-        Club club = clubRepo.findClubById(clubId);
-        List<Event> events =  eventRepo.findAllByOrganizingClub(club);
-        return events.stream().map((event) -> mapToEventDto(event)).collect(Collectors.toList());
+    public Page<GetEventForListDto> findEventsByClub(long clubId, int page, int size, String sortBy, String direction) {
+        Club club = clubRepo.findClubById(clubId)
+                .orElseThrow(() -> new NotFoundException("Клуб не найден"));
+
+        Function<Pageable, Page<Event>> eventFinder = (pageable) ->
+                eventRepo.findAllByOrganizingClub(club, pageable);
+
+        return findEventsByFunction(
+                page,
+                size,
+                sortBy,
+                direction,
+                eventFinder
+        );
     }
 
     @Override
     @Transactional
-    public EventDto findEventByClubAndEventId(long clubId, long eventId) {
-        Event event = eventRepo.findByOrganizingClub_IdAndId(clubId,eventId);
-        return mapToEventDto(event);
-    }
+    public GetEventDto findEventByClubAndEventId(long clubId, long eventId) {
+        Club club = clubRepo.findClubById(clubId)
+                .orElseThrow(() -> new NotFoundException("Клуб не найден"));
 
+        Event event = eventRepo.findByOrganizingClubAndId(club, eventId)
+                .orElseThrow(() -> new NotFoundException("Событие клуба не найдено"));
+
+        return eventMapper.mapEventToGetEventDto(event);
+    }
 
     @Override
     @Transactional
-    public EventDto updateEvent(long userId, EventDto eventDto, long eventId) {
-       User owner = userRepo.findUserById(userId);
+    public void updateEventInfo(long userId, UpdateEventInfoDto updateEventInfoDto, long eventId) {
+        User owner = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
-       if (owner.getOwnClub() != null) {
+        Club club = clubRepo.findClubByOwner(owner)
+                .orElseThrow(() -> new NoSuchObjectException("У пользователя нет своего клуба"));
 
-           Club ownClub = owner.getOwnClub();
-           Event event = eventRepo.findByOrganizingClub_IdAndId(ownClub.getId(), eventId);
+        Event event = eventRepo.findByOrganizingClubAndId(club, eventId)
+                .orElseThrow(() -> new NotFoundException("Событие клуба не найдено"));
 
-           if (event != null) {
-
-               String name = eventDto.getName();
-               String description = eventDto.getDescription();
-               Date beginDate = eventDto.getBeginDate();
-               Date endDate = eventDto.getEndDate();
-               String status = eventDto.getStatus();
-
-               if (name != null && !name.isBlank()) {
-                   event.setName(name);
-               }
-               if (description != null && !description.isBlank()) {
-                   event.setDescription(description);
-               }
-               if (beginDate != null) {
-                   event.setBeginDate(beginDate);
-               }
-
-               if (endDate != null) {
-                   event.setEndDate(endDate);
-               }
-
-               if (status != null && !status.isBlank()) {
-                   event.setStatus(status);
-               }
-
-               eventRepo.save(event);
-               return mapToEventDto(event);
-           } else {
-               throw new IllegalStateException("У клуба нет такого ивента.");
-           }
-
-       } else {
-           throw new IllegalStateException("У пользователя нет своего клуба.");
-       }
+        BeanUtils.copyProperties(updateEventInfoDto, event);
+        eventRepo.save(event);
     }
 
     @Override
     @Transactional
     public void deleteEvent(long userId, long eventId) {
+        User owner = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
-        User owner = userRepo.findUserById(userId);
+        Club club = clubRepo.findClubByOwner(owner)
+                .orElseThrow(() -> new NoSuchObjectException("У пользователя нет своего клуба"));
 
-        if (owner.getOwnClub() != null) {
+        Event event = eventRepo.findByOrganizingClubAndId(club, eventId)
+                .orElseThrow(() -> new NotFoundException("Событие клуба не найдено"));
 
-            Club ownClub = owner.getOwnClub();
-            Event event = eventRepo.findByOrganizingClub_IdAndId(ownClub.getId(), eventId);
-
-            if (event != null) {
-
-                eventRepo.delete(event);
-
-                Club organizingClub = event.getOrganizingClub();
-                organizingClub.getEvents().remove(event);
-                clubRepo.save(organizingClub);
-
-                List<User> joinedUsers = event.getJoinedUsers();
-
-                if (!joinedUsers.isEmpty()) {
-                    joinedUsers.forEach(user -> {
-                        user.getJoinedEvents().remove(event);
-                        userRepo.save(user);
-                    });
-                }
-            } else {
-                throw new IllegalStateException("У клуба нет такого ивента.");
-            }
-        } else {
-            throw new IllegalStateException("У пользователя нет своего клуба.");
-        }
+        eventRepo.delete(event);
     }
 
     @Override
     @Transactional
     public Page<GetEventForListDto> findAllByUser(long userId, int page, int size, String sortBy, String direction) {
-        return findEventsByUserAndFunction(userId, page, size, sortBy, direction, eventRepo::findAllByUser);
+        User owner = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+        Function<Pageable, Page<Event>> eventFinder = (pageable) ->
+                eventRepo.findAllByUser(owner, pageable);
+
+        return findEventsByFunction(page,size,sortBy,direction, eventFinder);
     }
 
-    private Event mapToEvent(EventDto eventDto) {
-
-    Event event = Event.builder()
-            .name(eventDto.getName())
-            .description(eventDto.getDescription())
-            .beginDate(eventDto.getBeginDate())
-            .endDate(eventDto.getEndDate())
-            .status(eventDto.getStatus())
-            .joinedUsers(eventDto.getJoinedUsers())
-            .organizingClub(eventDto.getOrganizingClub())
-            .build();
-
-    return event;
-    }
-
-    private EventDto mapToEventDto(Event event) {
-
-        EventDto eventDto = EventDto.builder()
-                .id(event.getId())
-                .name(event.getName())
-                .description(event.getDescription())
-                .beginDate(event.getBeginDate())
-                .endDate(event.getEndDate())
-                .status(event.getStatus())
-                .joinedUsers(event.getJoinedUsers())
-                .organizingClub(event.getOrganizingClub())
-                .build();
-
-        return eventDto;
-    }
 
     private Sort createSort(String sortBy, String direction) {
         Set<String> allowedFields = Set.of("id", "name");
@@ -199,22 +137,18 @@ public class EventServiceImpl implements com.example.EventsOrganizer.service.Eve
         return Sort.by(sortDirection, validSortBy);
     }
 
-    private Page<GetEventForListDto> findEventsByUserAndFunction(
-            long userId,
+    private Page<GetEventForListDto> findEventsByFunction(
             int page,
             int size,
             String sortBy,
             String direction,
-            BiFunction<User, Pageable, Page<Event>> eventFinder
+            Function<Pageable, Page<Event>> taskFinder
     ) {
         int validSize = List.of(5, 10, 15).contains(size) ? size : 10;
         Sort sort = createSort(sortBy, direction);
         Pageable pageable = PageRequest.of(page, validSize, sort);
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new NullPointerException("Пользователь не найден"));
-
-        return eventFinder.apply(user, pageable)
+        return taskFinder.apply(pageable)
                 .map(eventMapper::mapEventToGetEventDtoForList);
     }
 

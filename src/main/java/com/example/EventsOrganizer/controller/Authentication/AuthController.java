@@ -29,21 +29,26 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody UserLoginDto userLoginDto, HttpServletRequest request) {
-
+    public ResponseEntity<String> login(
+            @Valid @RequestBody UserLoginDto userLoginDto,
+            HttpServletRequest request
+    ) {
         log.info("Получен запрос на авторизацию {}", request.getRequestURI());
         String token = authServiceImpl.attemptLogin(userLoginDto.getLogin(), userLoginDto.getPassword());
         return ResponseEntity.ok(token);
-
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody CreateUserDto user, HttpServletRequest request) {
 
+    @PostMapping("/register")
+    public ResponseEntity<Void> register(
+            @Valid @RequestBody CreateUserDto user,
+            HttpServletRequest request
+    ) {
         log.info("Получен запрос на регистрацию {}", request.getRequestURI());
         userService.saveUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
 
     }
+
 
 }

@@ -1,5 +1,6 @@
 package com.example.EventsOrganizer.service.impl;
 
+import com.example.EventsOrganizer.exception.NotFoundException;
 import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.security.UserPrincipal;
@@ -23,7 +24,8 @@ public class UserDetailsService implements org.springframework.security.core.use
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepo.findUserByLogin(username);
+        User user = userRepo.findUserByLogin(username)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getAuthority()))

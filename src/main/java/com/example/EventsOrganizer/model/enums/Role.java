@@ -1,4 +1,4 @@
-package com.example.EventsOrganizer.model.entity;
+package com.example.EventsOrganizer.model.enums;
 
 
 import org.springframework.security.core.GrantedAuthority;

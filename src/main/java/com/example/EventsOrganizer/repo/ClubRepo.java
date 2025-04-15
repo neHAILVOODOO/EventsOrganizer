@@ -9,10 +9,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClubRepo extends JpaRepository<Club,Long> {
 
-    Club findClubById(long clubId);
+    Optional<Club> findClubById(long clubId);
+
+    Optional<Club> findClubByOwner(User owner);
 
     @Query("SELECT DISTINCT c FROM Club c JOIN c.users u WHERE u = :user")
     Page<Club> findAllByUser(@Param("user") User user, Pageable pageable);

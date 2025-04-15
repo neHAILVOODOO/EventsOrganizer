@@ -7,19 +7,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface EventRepo extends JpaRepository<Event, Long> {
 
-    List<Event> findAllByOrganizingClub(Club club);
+    Page<Event> findAllByOrganizingClub(Club club, Pageable pageable);
 
-    Event findByOrganizingClub_IdAndId(long clubId, long eventId);
+    Optional<Event> findByOrganizingClubAndId(Club club, long eventId);
 
-    Event findById(long eventId);
-
-    Page<Event> findAllByUser(User user, Pageable pageable);
-
-
+    @Query("SELECT e FROM Event e JOIN e.joinedUsers u WHERE u = :user")
+    Page<Event> findAllByUser(@Param("user") User user, Pageable pageable);
 
 }

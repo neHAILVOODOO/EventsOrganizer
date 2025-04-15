@@ -1,6 +1,5 @@
 package com.example.EventsOrganizer.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,22 +24,18 @@ public class Club {
     private String description;
     private String thematics;
 
-
     @ManyToMany()
     @JoinTable(name = "users_subscribed_to_clubs"
             , joinColumns = @JoinColumn(name = "subscribed_club_id")
             , inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonBackReference("subscribedClubsReference")
     private List<User> users;
 
     @OneToOne
     @JoinColumn(name = "owner_id")
-    @JsonBackReference("ownClubReference")
     private User owner;
 
     @OneToMany(mappedBy = "organizingClub",cascade = CascadeType.REMOVE)
-    @JsonBackReference("eventsReference")
     private List<Event> events;
 
 

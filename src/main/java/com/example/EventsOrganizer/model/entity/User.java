@@ -1,7 +1,7 @@
 package com.example.EventsOrganizer.model.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.example.EventsOrganizer.model.enums.Role;
 import lombok.*;
 import javax.persistence.*;
 import java.util.List;
@@ -36,11 +36,9 @@ public class User {
             , joinColumns = @JoinColumn(name = "user_id")
             , inverseJoinColumns = @JoinColumn(name = "subscribed_club_id")
     )
-    @JsonBackReference("subscribedClubsReference")
     private List<Club> subscribedClubs;
 
-    @OneToOne(mappedBy = "owner")
-    @JsonBackReference("ownClubReference")
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.REMOVE)
     private Club ownClub;
 
     @ManyToMany()
@@ -48,7 +46,6 @@ public class User {
             , joinColumns = @JoinColumn(name = "user_id")
             , inverseJoinColumns = @JoinColumn(name = "joined_event_id")
     )
-    @JsonBackReference("joinedEventsReference")
     private List<Event> joinedEvents;
 
 }

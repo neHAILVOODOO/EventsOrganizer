@@ -1,6 +1,6 @@
 package com.example.EventsOrganizer.model.dto.user;
 
-import com.example.EventsOrganizer.model.entity.Role;
+import com.example.EventsOrganizer.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -2,7 +2,7 @@ package com.example.EventsOrganizer.model.dto;
 
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
-import com.example.EventsOrganizer.model.entity.Role;
+import com.example.EventsOrganizer.model.enums.Role;
 import lombok.*;
 
 import java.util.List;

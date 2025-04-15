@@ -70,7 +70,7 @@ public class ClubUserController {
     public EventDto getEventFromClubById(@PathVariable long clubId, @PathVariable long eventId, HttpServletRequest request) {
 
         log.info("Получен запрос на вывод информации о мероприятии id{} {}", eventId, request.getRequestURI());
-        return eventService.findEventByClubAndEventId(clubId, eventId);
+        return eventService.findEventByClubAndEventId(eventId);
 
     }
 

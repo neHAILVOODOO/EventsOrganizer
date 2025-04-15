@@ -1,14 +1,21 @@
 package com.example.EventsOrganizer.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -24,10 +31,8 @@ public class Event {
     private long id;
     private String name;
     private String description;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date beginDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date endDate;
+    private LocalDate beginDate;
+    private LocalDate endDate;
     private String status;
 
     @ManyToMany()
@@ -35,12 +40,10 @@ public class Event {
             , joinColumns = @JoinColumn(name = "joined_event_id")
             , inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonBackReference("joinedEventsReference")
     private List<User> joinedUsers;
 
     @ManyToOne()
     @JoinColumn(name = "organizing_club_id")
-    @JsonBackReference("eventsReference")
     private Club organizingClub;
 
 }

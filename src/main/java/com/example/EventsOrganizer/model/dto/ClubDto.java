@@ -1,6 +1,5 @@
 package com.example.EventsOrganizer.model.dto;
 
-
 import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
 import lombok.*;

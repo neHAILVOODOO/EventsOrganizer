@@ -3,7 +3,7 @@ package com.example.EventsOrganizer.mapper;
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
-import com.example.EventsOrganizer.model.entity.Role;
+import com.example.EventsOrganizer.model.enums.Role;
 import com.example.EventsOrganizer.model.entity.User;
 import org.springframework.stereotype.Component;
 

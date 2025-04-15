@@ -39,6 +39,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findAllUsers(page, size, sortBy, direction));
     }
 
+
     @GetMapping("/{userId}")
     public ResponseEntity<GetUserDto> getUser(
             @PathVariable long userId,
@@ -47,6 +48,7 @@ public class UserController {
         log.info("Получен запрос на вывод информации о пользователе id{} {}", userId, request.getRequestURI());
         return ResponseEntity.ok(userService.findById(userId));
     }
+
 
     @GetMapping("/{userId}/joined-events")
     public ResponseEntity<Page<GetEventForListDto>> getEventsByUser(

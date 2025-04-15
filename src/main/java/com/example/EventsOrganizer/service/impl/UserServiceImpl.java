@@ -1,5 +1,6 @@
 package com.example.EventsOrganizer.service.impl;
 
+import com.example.EventsOrganizer.exception.NotFoundException;
 import com.example.EventsOrganizer.mapper.UserMapper;
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.UserDto;
@@ -41,11 +42,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public GetUserDto findById(long userId) {
-        User user = userRepo.findUserById(userId);
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
         return userMapper.mapUserToGetUserDto(user);
     }
 
     @Override
+    @Transactional
     public Page<GetUserForListDto> findAllUsers(int page, int size, String sortBy, String direction) {
         return findUsers(page, size, sortBy, direction, userRepo::findAll);
     }
@@ -80,7 +83,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto updateUser(UserDto userDto, long userId) {
-        User user = userRepo.findUserById(userId);
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
 
          String login = userDto.getLogin();
          String password = userDto.getPassword();
@@ -116,7 +120,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto subscribeToClub(long userId, long clubId) {
-        User user = userRepo.findUserById(userId);
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
         Club club = clubRepo.findClubById(clubId);
 
         if (club.getUsers().contains(user)) {
@@ -134,7 +140,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto jointToTheEvent(long userId, long eventId, long clubId) {
-       User user = userRepo.findUserById(userId);
+       User user = userRepo.findUserById(userId)
+               .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
+
        Event event = eventRepo.findByOrganizingClub_IdAndId(clubId, eventId);
 
        if (event.getJoinedUsers().contains(user)) {
@@ -152,7 +160,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto unsubscribeFromClub(long userId, long clubId) {
-        User user = userRepo.findUserById(userId);
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
         Club club = clubRepo.findClubById(clubId);
 
         user.getSubscribedClubs().remove(club);
@@ -165,8 +175,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto leaveTheEvent(long userId, long eventId) {
-        User user = userRepo.findUserById(userId);
-        Event event = eventRepo.findById(eventId);
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие не найдено"));
 
         user.getJoinedEvents().remove(event);
         userRepo.save(user);
@@ -177,7 +190,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(long userId) {
-        User user = userRepo.findUserById(userId);
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
         userRepo.delete(user);
     }
 

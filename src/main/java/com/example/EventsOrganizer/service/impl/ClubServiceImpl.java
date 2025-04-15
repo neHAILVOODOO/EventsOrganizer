@@ -1,5 +1,6 @@
 package com.example.EventsOrganizer.service.impl;
 
+import com.example.EventsOrganizer.exception.NotFoundException;
 import com.example.EventsOrganizer.mapper.ClubMapper;
 import com.example.EventsOrganizer.model.dto.ClubDto;
 import com.example.EventsOrganizer.model.dto.club.GetClubForListDto;
@@ -40,21 +41,17 @@ public class ClubServiceImpl implements ClubService {
     @Override
     @Transactional
     public ClubDto saveClub(long userId, ClubDto clubDto) {
-      User user = userRepo.findUserById(userId);
+      User user = userRepo.findUserById(userId)
+              .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
 
       if (user.getOwnClub() == null) {
-
+          throw new IllegalStateException("У пользователя уже есть свой клуб.");
+      }
           Club club = mapToClub(clubDto);
           club.setOwner(user);
           clubRepo.save(club);
 
           return mapToClubDto(club);
-
-      } else {
-          throw new IllegalStateException("У пользователя уже есть свой клуб.");
-      }
-
-
     }
 
     @Override
@@ -73,8 +70,8 @@ public class ClubServiceImpl implements ClubService {
     @Override
     @Transactional
     public ClubDto updateOwnerClub(long userId, ClubDto clubDto) {
-
-        User user = userRepo.findUserById(userId);
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
 
         if (user.getOwnClub() != null) {
 
@@ -111,7 +108,8 @@ public class ClubServiceImpl implements ClubService {
     @Override
     @Transactional
     public void deleteOwnClub(long userId) {
-        User owner = userRepo.findUserById(userId);
+        User owner = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
 
         if (owner.getOwnClub() != null) {
 

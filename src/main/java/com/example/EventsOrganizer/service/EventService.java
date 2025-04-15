@@ -1,20 +1,21 @@
 package com.example.EventsOrganizer.service;
 
 import com.example.EventsOrganizer.model.dto.EventDto;
+import com.example.EventsOrganizer.model.dto.event.CreateEventDto;
+import com.example.EventsOrganizer.model.dto.event.GetEventDto;
 import com.example.EventsOrganizer.model.dto.event.GetEventForListDto;
+import com.example.EventsOrganizer.model.dto.event.UpdateEventInfoDto;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 public interface EventService {
 
-    EventDto createEventForOwnClub(long userId,EventDto eventDto);
+    void createEventForOwnClub(long userId, CreateEventDto createEventDto);
 
-    List<EventDto> findEventsByClub(long clubId);
+    Page<GetEventForListDto> findEventsByClub(long clubId, int page, int size, String sortBy, String direction);
 
-    EventDto findEventByClubAndEventId(long clubId, long eventId);
+    GetEventDto findEventByClubAndEventId(long clubId, long eventId);
 
-    EventDto updateEvent(long userId, EventDto eventDto, long eventId);
+    void updateEventInfo(long userId, UpdateEventInfoDto updateEventInfoDto, long eventId);
 
     void deleteEvent(long userId, long eventId);
 

@@ -3,6 +3,7 @@ package com.example.EventsOrganizer.controller.Club;
 
 import com.example.EventsOrganizer.model.dto.ClubDto;
 import com.example.EventsOrganizer.model.dto.EventDto;
+import com.example.EventsOrganizer.model.dto.event.CreateEventDto;
 import com.example.EventsOrganizer.security.UserPrincipal;
 import com.example.EventsOrganizer.service.ClubService;
 import com.example.EventsOrganizer.service.EventService;
@@ -47,18 +48,18 @@ public class ClubOwnerController {
     }
 
     @PostMapping("/events")
-    public EventDto createEventForOwnClub(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody EventDto eventDto, HttpServletRequest request) {
+    public EventDto createEventForOwnClub(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody CreateEventDto createEventDto, HttpServletRequest request) {
 
         log.info("Получен запрос на создание нового мероприятия в клубе пользователем id{} {}", userPrincipal.getUserId(), request.getRequestURI());
-        return eventService.createEventForOwnClub(userPrincipal.getUserId(), eventDto);
-
+        eventService.createEventForOwnClub(userPrincipal.getUserId(), eventDto);
+        return null;
     }
 
     @PatchMapping("/events/{eventId}")
     public EventDto editEvent(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody EventDto eventDto, @PathVariable long eventId, HttpServletRequest request) {
 
         log.info("Получен запрос на изменение информации о мероприятии id{} пользователем id{} {}", eventId, userPrincipal.getUserId(), request.getRequestURI());
-        return eventService.updateEvent(userPrincipal.getUserId(),eventDto, eventId);
+        return eventService.updateEventInfo(userPrincipal.getUserId(), eventId);
 
     }
 
