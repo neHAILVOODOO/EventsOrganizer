@@ -1,8 +1,6 @@
 package com.example.EventsOrganizer.controller.Club;
 
 
-import com.example.EventsOrganizer.model.dto.ClubDto;
-import com.example.EventsOrganizer.model.dto.EventDto;
 import com.example.EventsOrganizer.model.dto.event.CreateEventDto;
 import com.example.EventsOrganizer.security.UserPrincipal;
 import com.example.EventsOrganizer.service.ClubService;
@@ -43,7 +41,7 @@ public class ClubOwnerController {
     public void deleteClub(@AuthenticationPrincipal UserPrincipal userPrincipal, HttpServletRequest request) {
 
         log.info("Получен запрос на удаление клуба пользователем id{} {}", userPrincipal.getUserId(), request.getRequestURI());
-        clubService.deleteOwnClub(userPrincipal.getUserId());
+        clubService.deleteClub(userPrincipal.getUserId());
 
     }
 

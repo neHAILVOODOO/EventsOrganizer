@@ -18,6 +18,6 @@ public interface ClubRepo extends JpaRepository<Club,Long> {
     Optional<Club> findClubByOwner(User owner);
 
     @Query("SELECT DISTINCT c FROM Club c JOIN c.users u WHERE u = :user")
-    Page<Club> findAllByUser(@Param("user") User user, Pageable pageable);
+    Page<Club> findAllSubscribedByUser(@Param("user") User user, Pageable pageable);
 
 }

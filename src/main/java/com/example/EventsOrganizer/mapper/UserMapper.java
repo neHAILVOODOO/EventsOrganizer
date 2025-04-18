@@ -3,6 +3,7 @@ package com.example.EventsOrganizer.mapper;
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
+import com.example.EventsOrganizer.model.dto.user.UserPreviewDto;
 import com.example.EventsOrganizer.model.enums.Role;
 import com.example.EventsOrganizer.model.entity.User;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,17 @@ public class UserMapper {
                 .phoneNumber(user.getPhoneNumber())
                 .age(user.getAge())
                 .roles(user.getRoles())
+                .build();
+
+    }
+
+    public UserPreviewDto mapUserToUserPreviewDto(User user) {
+
+        return UserPreviewDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .surname(user.getSurname())
+                .phoneNumber(user.getPhoneNumber())
                 .build();
 
     }

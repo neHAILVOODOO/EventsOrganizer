@@ -1,7 +1,6 @@
 package com.example.EventsOrganizer.controller.Club;
 
 
-import com.example.EventsOrganizer.model.dto.ClubDto;
 import com.example.EventsOrganizer.service.ClubService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

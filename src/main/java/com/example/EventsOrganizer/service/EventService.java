@@ -1,6 +1,5 @@
 package com.example.EventsOrganizer.service;
 
-import com.example.EventsOrganizer.model.dto.EventDto;
 import com.example.EventsOrganizer.model.dto.event.CreateEventDto;
 import com.example.EventsOrganizer.model.dto.event.GetEventDto;
 import com.example.EventsOrganizer.model.dto.event.GetEventForListDto;
@@ -13,12 +12,12 @@ public interface EventService {
 
     Page<GetEventForListDto> findEventsByClub(long clubId, int page, int size, String sortBy, String direction);
 
-    GetEventDto findEventByClubAndEventId(long clubId, long eventId);
+    GetEventDto findEventById(long eventId);
 
-    void updateEventInfo(long userId, UpdateEventInfoDto updateEventInfoDto, long eventId);
+    void updateEventInfo(UpdateEventInfoDto updateEventInfoDto, long eventId);
 
-    void deleteEvent(long userId, long eventId);
+    void deleteEvent(long eventId);
 
-    Page<GetEventForListDto> findAllByUser(long userId, int page, int size, String sortBy, String direction);
+    Page<GetEventForListDto> findAllJoinedByUser(long userId, int page, int size, String sortBy, String direction);
 
 }

@@ -1,7 +1,6 @@
 package com.example.EventsOrganizer.controller.User;
 
 
-import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

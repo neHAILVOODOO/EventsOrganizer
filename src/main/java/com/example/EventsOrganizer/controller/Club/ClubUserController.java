@@ -1,9 +1,6 @@
 package com.example.EventsOrganizer.controller.Club;
 
 
-import com.example.EventsOrganizer.model.dto.ClubDto;
-import com.example.EventsOrganizer.model.dto.EventDto;
-import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.security.UserPrincipal;
 import com.example.EventsOrganizer.service.ClubService;
 import com.example.EventsOrganizer.service.EventService;
@@ -70,7 +67,7 @@ public class ClubUserController {
     public EventDto getEventFromClubById(@PathVariable long clubId, @PathVariable long eventId, HttpServletRequest request) {
 
         log.info("Получен запрос на вывод информации о мероприятии id{} {}", eventId, request.getRequestURI());
-        return eventService.findEventByClubAndEventId(eventId);
+        return eventService.findEventById(eventId);
 
     }
 

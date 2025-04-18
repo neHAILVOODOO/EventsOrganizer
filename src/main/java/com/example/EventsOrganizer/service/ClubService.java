@@ -1,27 +1,23 @@
 package com.example.EventsOrganizer.service;
 
-import com.example.EventsOrganizer.model.dto.ClubDto;
+import com.example.EventsOrganizer.model.dto.club.CreateClubDto;
+import com.example.EventsOrganizer.model.dto.club.GetClubDto;
 import com.example.EventsOrganizer.model.dto.club.GetClubForListDto;
+import com.example.EventsOrganizer.model.dto.club.UpdateClubDto;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 public interface ClubService {
 
-    ClubDto saveClub(long userId,ClubDto clubDto);
+    void createClub(long userId, CreateClubDto createClubDto);
 
-    List<ClubDto> getAllClubs();
+    Page<GetClubForListDto> getAllClubs(int page, int size, String sortBy, String direction);
 
-    ClubDto findClubById(long clubId);
+    GetClubDto findClubById(long clubId);
 
-    ClubDto updateOwnerClub(long userId,ClubDto clubDto);
+    void updateClub(long clubId, UpdateClubDto updateClubDto);
 
-    ClubDto updateClub(long clubId, ClubDto clubDto);
+    void deleteClub(long clubId);
 
-    void deleteOwnClub(long userId);
-
-    void adminDeleteClub(long clubId);
-
-    Page<GetClubForListDto> findAllByUser(long userId, int page, int size, String sortBy, String direction);
+    Page<GetClubForListDto> findAllSubscribedByUser(long userId, int page, int size, String sortBy, String direction);
 
 }

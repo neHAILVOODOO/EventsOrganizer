@@ -72,27 +72,18 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public GetEventDto findEventByClubAndEventId(long clubId, long eventId) {
-        Club club = clubRepo.findClubById(clubId)
-                .orElseThrow(() -> new NotFoundException("Клуб не найден"));
-
-        Event event = eventRepo.findByOrganizingClubAndId(club, eventId)
-                .orElseThrow(() -> new NotFoundException("Событие клуба не найдено"));
+    public GetEventDto findEventById(long eventId) {
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие не найдено"));
 
         return eventMapper.mapEventToGetEventDto(event);
     }
 
     @Override
     @Transactional
-    public void updateEventInfo(long userId, UpdateEventInfoDto updateEventInfoDto, long eventId) {
-        User owner = userRepo.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-
-        Club club = clubRepo.findClubByOwner(owner)
-                .orElseThrow(() -> new NoSuchObjectException("У пользователя нет своего клуба"));
-
-        Event event = eventRepo.findByOrganizingClubAndId(club, eventId)
-                .orElseThrow(() -> new NotFoundException("Событие клуба не найдено"));
+    public void updateEventInfo(UpdateEventInfoDto updateEventInfoDto, long eventId) {
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие не найдено"));
 
         BeanUtils.copyProperties(updateEventInfoDto, event);
         eventRepo.save(event);
@@ -100,29 +91,23 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void deleteEvent(long userId, long eventId) {
-        User owner = userRepo.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-
-        Club club = clubRepo.findClubByOwner(owner)
-                .orElseThrow(() -> new NoSuchObjectException("У пользователя нет своего клуба"));
-
-        Event event = eventRepo.findByOrganizingClubAndId(club, eventId)
-                .orElseThrow(() -> new NotFoundException("Событие клуба не найдено"));
+    public void deleteEvent(long eventId) {
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие не найдено"));
 
         eventRepo.delete(event);
     }
 
     @Override
     @Transactional
-    public Page<GetEventForListDto> findAllByUser(long userId, int page, int size, String sortBy, String direction) {
+    public Page<GetEventForListDto> findAllJoinedByUser(long userId, int page, int size, String sortBy, String direction) {
         User owner = userRepo.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         Function<Pageable, Page<Event>> eventFinder = (pageable) ->
                 eventRepo.findAllByUser(owner, pageable);
 
-        return findEventsByFunction(page,size,sortBy,direction, eventFinder);
+        return findEventsByFunction(page, size, sortBy, direction, eventFinder);
     }
 
 
@@ -142,15 +127,14 @@ public class EventServiceImpl implements EventService {
             int size,
             String sortBy,
             String direction,
-            Function<Pageable, Page<Event>> taskFinder
+            Function<Pageable, Page<Event>> eventFinder
     ) {
         int validSize = List.of(5, 10, 15).contains(size) ? size : 10;
         Sort sort = createSort(sortBy, direction);
         Pageable pageable = PageRequest.of(page, validSize, sort);
 
-        return taskFinder.apply(pageable)
+        return eventFinder.apply(pageable)
                 .map(eventMapper::mapEventToGetEventDtoForList);
     }
-
 
 }

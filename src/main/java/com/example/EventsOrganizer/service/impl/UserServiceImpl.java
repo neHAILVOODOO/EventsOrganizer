@@ -3,7 +3,6 @@ package com.example.EventsOrganizer.service.impl;
 import com.example.EventsOrganizer.exception.NotFoundException;
 import com.example.EventsOrganizer.mapper.UserMapper;
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
-import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
 import com.example.EventsOrganizer.model.entity.Club;

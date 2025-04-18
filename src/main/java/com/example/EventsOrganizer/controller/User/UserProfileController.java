@@ -1,8 +1,5 @@
 package com.example.EventsOrganizer.controller.User;
 
-import com.example.EventsOrganizer.model.dto.ClubDto;
-import com.example.EventsOrganizer.model.dto.EventDto;
-import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.security.UserPrincipal;
 import com.example.EventsOrganizer.service.ClubService;

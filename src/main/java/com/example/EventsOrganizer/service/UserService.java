@@ -1,7 +1,6 @@
 package com.example.EventsOrganizer.service;
 
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
-import com.example.EventsOrganizer.model.dto.UserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
 import org.springframework.data.domain.Page;
