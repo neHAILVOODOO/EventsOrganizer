@@ -7,6 +7,8 @@ import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
 import com.example.EventsOrganizer.model.dto.user.UpdateUserBioDto;
+import com.example.EventsOrganizer.model.dto.user.UpdateUserLoginDto;
+import com.example.EventsOrganizer.model.dto.user.UpdateUserPasswordDto;
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
@@ -95,9 +97,47 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUserBio(UpdateUserBioDto updateUserBioDto, long userId) {
         User user = userRepo.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         BeanUtils.copyProperties(updateUserBioDto, user);
+        userRepo.save(user);
+    }
+
+    @Override
+    public void updateUserLogin(UpdateUserLoginDto updateUserLoginDto, long userId) {
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+        if (!passwordEncoder.matches(updateUserLoginDto.getPassword(), user.getPassword())) {
+            throw new ConflictException("Неверный текущий пароль");
+        }
+
+        if (userRepo.existsUserByLogin(updateUserLoginDto.getNewLogin())) {
+            throw new ConflictException("Логин уже занят");
+        }
+
+        user.setLogin(updateUserLoginDto.getNewLogin());
+        userRepo.save(user);
+    }
+
+    @Override
+    public void updateUserPassword(UpdateUserPasswordDto updateUserPasswordDto, long userId) {
+        User user = userRepo.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+        if (!passwordEncoder.matches(updateUserPasswordDto.getCurrentPassword(), user.getPassword())) {
+            throw new ConflictException("Неверный текущий пароль");
+        }
+
+        if (passwordEncoder.matches(updateUserPasswordDto.getNewPassword(), user.getPassword())) {
+            throw new ConflictException("Новый пароль должен отличаться от текущего");
+        }
+
+        if (!updateUserPasswordDto.getNewPassword().equals(updateUserPasswordDto.getConfirmNewPassword())) {
+            throw new ConflictException("Пароли должны совпадать");
+        }
+
+        user.setPassword(passwordEncoder.encode(updateUserPasswordDto.getNewPassword()));
         userRepo.save(user);
     }
 

@@ -60,7 +60,7 @@ public class UserController {
             @RequestParam(defaultValue = "asc") String direction
     ) {
         log.info("Получен запрос на вывод мероприятий, на которые записан пользователь id{} {}", userId, request.getRequestURI());
-        return ResponseEntity.ok(eventService.findAllByUser(userId, page, size, sortBy, direction));
+        return ResponseEntity.ok(eventService.findAllJoinedByUser(userId, page, size, sortBy, direction));
     }
 
 
@@ -74,7 +74,7 @@ public class UserController {
             @RequestParam(defaultValue = "asc") String direction
     ) {
         log.info("Получен на вывод клубов, на которые подписан пользователь id{} {}", userId, request.getRequestURI());
-        return ResponseEntity.ok(clubService.findAllByUser(userId, page, size, sortBy, direction));
+        return ResponseEntity.ok(clubService.findAllSubscribedByUser(userId, page, size, sortBy, direction));
     }
 
 
