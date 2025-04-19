@@ -3,6 +3,7 @@ package com.example.EventsOrganizer.service;
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
+import com.example.EventsOrganizer.model.dto.user.UpdateUserBioDto;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,19 +16,19 @@ public interface UserService {
 
     void saveUser(CreateUserDto createUserDto);
 
-    List<UserDto> findAllBySubscribedClubId(long clubId);
+    Page<GetUserForListDto> findAllBySubscribedClubId(long clubId, int page, int size, String sortBy, String direction);
 
-    List<UserDto> findAllByJoinedEventId(long eventId);
+    Page<GetUserForListDto> findAllByJoinedEventId(long eventId, int page, int size, String sortBy, String direction);
 
-    UserDto updateUser(UserDto userDto, long userId);
+    void updateUserBio(UpdateUserBioDto updateUserBioDto, long userId);
 
-    UserDto subscribeToClub(long userId, long clubId);
+    void subscribeToClub(long userId, long clubId);
 
-    UserDto jointToTheEvent(long userId, long eventId,  long clubId);
+    void jointToTheEvent(long userId, long eventId,  long clubId);
 
-    UserDto unsubscribeFromClub(long userId, long clubId);
+    void unsubscribeFromClub(long userId, long clubId);
 
-    UserDto leaveTheEvent(long userId, long eventId);
+    void leaveTheEvent(long userId, long eventId);
 
     void deleteUser(long userId);
 

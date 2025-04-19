@@ -1,5 +1,6 @@
 package com.example.EventsOrganizer.exception.handler;
 
+import com.example.EventsOrganizer.exception.ConflictException;
 import com.example.EventsOrganizer.exception.NoSuchObjectException;
 import com.example.EventsOrganizer.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleNoSuchObjectException(NoSuchObjectException ex) {
         log.error("{}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<String> handleConflictException(ConflictException ex) {
+        log.error("{}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
 }

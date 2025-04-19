@@ -1,10 +1,12 @@
 package com.example.EventsOrganizer.service.impl;
 
+import com.example.EventsOrganizer.exception.ConflictException;
 import com.example.EventsOrganizer.exception.NotFoundException;
 import com.example.EventsOrganizer.mapper.UserMapper;
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserDto;
 import com.example.EventsOrganizer.model.dto.user.GetUserForListDto;
+import com.example.EventsOrganizer.model.dto.user.UpdateUserBioDto;
 import com.example.EventsOrganizer.model.entity.Club;
 import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
@@ -13,6 +15,7 @@ import com.example.EventsOrganizer.repo.EventRepo;
 import com.example.EventsOrganizer.repo.UserRepo;
 import com.example.EventsOrganizer.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.cglib.core.internal.Function;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +27,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -42,148 +44,124 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public GetUserDto findById(long userId) {
         User user = userRepo.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
         return userMapper.mapUserToGetUserDto(user);
     }
 
     @Override
     @Transactional
     public Page<GetUserForListDto> findAllUsers(int page, int size, String sortBy, String direction) {
-        return findUsers(page, size, sortBy, direction, userRepo::findAll);
+        return findUsersByFunction(page, size, sortBy, direction, userRepo::findAll);
     }
 
     @Override
     @Transactional
     public void saveUser(CreateUserDto createUserDto) {
-
-        if (existsByUser(createUserDto.getLogin())) {
-            throw new IllegalStateException("Пользователь с таким логином уже существует");
+        if (userRepo.existsUserByLogin(createUserDto.getLogin())) {
+            throw new ConflictException("Пользователь с таким логином уже существует");
         }
-            User user = userMapper.mapCreateUserDtoToUser(createUserDto);
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepo.save(user);
 
+        User user = userMapper.mapCreateUserDtoToUser(createUserDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepo.save(user);
     }
 
     @Override
     @Transactional
-    public List<UserDto> findAllBySubscribedClubId(long clubId) {
-        List<User> users = userRepo.findAllBySubscribedClubId(clubId);
-        return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
+    public Page<GetUserForListDto> findAllBySubscribedClubId(long clubId, int page, int size, String sortBy, String direction) {
+        Club club = clubRepo.findClubById(clubId)
+                .orElseThrow(() -> new NotFoundException("Клуб не найден"));
+
+        Function<Pageable, Page<User>> userFinder = (pageable) ->
+                userRepo.findAllBySubscribedClub(club, pageable);
+
+       return findUsersByFunction(page, size, sortBy, direction, userFinder);
     }
 
     @Override
     @Transactional
-    public List<UserDto> findAllByJoinedEventId(long eventId) {
-        List<User> users = userRepo.findAllByJoinedEventId(eventId);
-        return users.stream().map((user) -> mapToUserDto(user)).collect(Collectors.toList());
+    public Page<GetUserForListDto> findAllByJoinedEventId(long eventId, int page, int size, String sortBy, String direction) {
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие не найдено"));
+
+        Function<Pageable, Page<User>> userFinder = (pageable) ->
+                userRepo.findAllByJoinedEvent(event, pageable);
+
+        return findUsersByFunction(page, size, sortBy, direction, userFinder);
     }
 
     @Override
     @Transactional
-    public UserDto updateUser(UserDto userDto, long userId) {
+    public void updateUserBio(UpdateUserBioDto updateUserBioDto, long userId) {
         User user = userRepo.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
 
-         String login = userDto.getLogin();
-         String password = userDto.getPassword();
-         String name = userDto.getName();
-         String surname = userDto.getSurname();
-         String phoneNumber = userDto.getPhoneNumber();
-         int age = userDto.getAge();
-
-        if (login != null && !login.isBlank()) {
-            user.setName(login);
-        }
-        if (password != null && !password.isBlank()) {
-            String encodedPassword = passwordEncoder.encode(password);
-            user.setPassword(encodedPassword);
-        }
-        if (name != null && !name.isBlank()) {
-            user.setName(name);
-        }
-        if (surname != null && !surname.isBlank()) {
-            user.setSurname(surname);
-        }
-        if (phoneNumber != null && !phoneNumber.isBlank()) {
-            user.setPhoneNumber(phoneNumber);
-        }
-        if (age != 0) {
-            user.setAge(age);
-        }
+        BeanUtils.copyProperties(updateUserBioDto, user);
         userRepo.save(user);
-        return mapToUserDto(user);
     }
 
 
     @Override
     @Transactional
-    public UserDto subscribeToClub(long userId, long clubId) {
+    public void subscribeToClub(long userId, long clubId) {
         User user = userRepo.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
-        Club club = clubRepo.findClubById(clubId);
+        Club club = clubRepo.findClubById(clubId)
+                .orElseThrow(() -> new NotFoundException("Клуб не найден"));
 
         if (club.getUsers().contains(user)) {
-
-            throw new IllegalStateException("Пользователь уже подписан на этот клуб.");
-
-        } else  {
-            user.getSubscribedClubs().add(club);
-            userRepo.save(user);
-            return mapToUserDto(user);
+            throw new ConflictException("Пользователь уже подписан на этот клуб.");
         }
+        user.getSubscribedClubs().add(club);
+        userRepo.save(user);
     }
 
 
     @Override
     @Transactional
-    public UserDto jointToTheEvent(long userId, long eventId, long clubId) {
+    public void jointToTheEvent(long userId, long eventId, long clubId) {
        User user = userRepo.findUserById(userId)
                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
 
-       Event event = eventRepo.findByOrganizingClub_IdAndId(clubId, eventId);
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие не найдено"));
 
        if (event.getJoinedUsers().contains(user)) {
-
            throw new IllegalStateException("Пользователь уже присоединился к этому событию.");
+       }
 
-       } else {
            user.getJoinedEvents().add(event);
            userRepo.save(user);
-           return mapToUserDto(user);
-       }
     }
 
 
     @Override
     @Transactional
-    public UserDto unsubscribeFromClub(long userId, long clubId) {
+    public void unsubscribeFromClub(long userId, long clubId) {
         User user = userRepo.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
-        Club club = clubRepo.findClubById(clubId);
+        Club club = clubRepo.findClubById(clubId)
+                .orElseThrow(() -> new NotFoundException("Клуб не найден"));
 
         user.getSubscribedClubs().remove(club);
         userRepo.save(user);
-
-        return mapToUserDto(user);
     }
 
 
     @Override
     @Transactional
-    public UserDto leaveTheEvent(long userId, long eventId) {
+    public void leaveTheEvent(long userId, long eventId) {
         User user = userRepo.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
 
         Event event = eventRepo.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие не найдено"));
 
         user.getJoinedEvents().remove(event);
         userRepo.save(user);
-
-        return mapToUserDto(user);
     }
 
     @Override
@@ -196,26 +174,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
-    private UserDto mapToUserDto(User user) {
-        UserDto userDto = UserDto.builder()
-                .id(user.getId())
-                .login(user.getLogin())
-                .password(user.getPassword())
-                .name(user.getName())
-                .surname(user.getSurname())
-                .phoneNumber(user.getPhoneNumber())
-                .age(user.getAge())
-                .roles(user.getRoles())
-                .subscribedClubs(user.getSubscribedClubs())
-                .ownClub(user.getOwnClub())
-                .joinedEvents(user.getJoinedEvents())
-                .build();
-
-        return userDto;
-    }
-
     private Sort createSort(String sortBy, String direction) {
         Set<String> allowedFields = Set.of("id", "name");
         String validSortBy = allowedFields.contains(sortBy) ? sortBy : "id";
@@ -227,7 +185,7 @@ public class UserServiceImpl implements UserService {
         return Sort.by(sortDirection, validSortBy);
     }
 
-    private Page<GetUserForListDto> findUsers(
+    private Page<GetUserForListDto> findUsersByFunction(
             int page,
             int size,
             String sortBy,
@@ -242,9 +200,5 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::mapUserToGetUserForListDto);
     }
 
-
-    public Boolean existsByUser(String login) {
-        return userRepo.existsUserByLogin(login);
-    }
 
 }
