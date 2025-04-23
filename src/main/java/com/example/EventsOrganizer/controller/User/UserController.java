@@ -10,8 +10,14 @@ import com.example.EventsOrganizer.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Max;
@@ -19,7 +25,7 @@ import javax.validation.constraints.Min;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @Slf4j
 public class UserController {
 
@@ -47,6 +53,16 @@ public class UserController {
     ) {
         log.info("Получен запрос на вывод информации о пользователе id{} {}", userId, request.getRequestURI());
         return ResponseEntity.ok(userService.findById(userId));
+    }
+
+    
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable long userId, HttpServletRequest request) {
+
+        log.info("Получен запрос на удаление профиля пользователя id{} {}", userId, request.getRequestURI());
+        userService.deleteUser(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
     }
 
 

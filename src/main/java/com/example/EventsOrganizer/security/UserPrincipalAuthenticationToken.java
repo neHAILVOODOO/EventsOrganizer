@@ -1,8 +1,6 @@
 package com.example.EventsOrganizer.security;
 
-
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-
 
 public class UserPrincipalAuthenticationToken extends AbstractAuthenticationToken {
 

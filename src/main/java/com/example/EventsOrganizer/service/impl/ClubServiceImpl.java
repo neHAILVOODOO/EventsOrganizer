@@ -7,7 +7,6 @@ import com.example.EventsOrganizer.model.dto.club.GetClubDto;
 import com.example.EventsOrganizer.model.dto.club.GetClubForListDto;
 import com.example.EventsOrganizer.model.dto.club.UpdateClubDto;
 import com.example.EventsOrganizer.model.entity.Club;
-import com.example.EventsOrganizer.model.entity.Event;
 import com.example.EventsOrganizer.model.entity.User;
 import com.example.EventsOrganizer.repo.ClubRepo;
 import com.example.EventsOrganizer.repo.UserRepo;

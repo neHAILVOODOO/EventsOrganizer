@@ -4,7 +4,6 @@ package com.example.EventsOrganizer.controller.Authentication;
 import com.example.EventsOrganizer.model.dto.user.CreateUserDto;
 import com.example.EventsOrganizer.model.dto.user.UserLoginDto;
 import com.example.EventsOrganizer.service.AuthService;
-import com.example.EventsOrganizer.service.impl.AuthServiceImpl;
 import com.example.EventsOrganizer.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
