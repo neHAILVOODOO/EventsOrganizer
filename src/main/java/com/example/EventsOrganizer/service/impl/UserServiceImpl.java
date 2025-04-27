@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void jointToTheEvent(long userId, long eventId, long clubId) {
+    public void jointToTheEvent(long userId, long eventId) {
        User user = userRepo.findUserById(userId)
                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));;
 

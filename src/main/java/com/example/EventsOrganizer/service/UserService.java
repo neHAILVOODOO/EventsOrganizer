@@ -28,7 +28,7 @@ public interface UserService {
 
     void subscribeToClub(long userId, long clubId);
 
-    void jointToTheEvent(long userId, long eventId,  long clubId);
+    void jointToTheEvent(long userId, long eventId);
 
     void unsubscribeFromClub(long userId, long clubId);
 

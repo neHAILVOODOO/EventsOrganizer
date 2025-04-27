@@ -55,6 +55,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findById(userId));
     }
 
+    //Чтобы и админ тоже мог удалять пользователя
     
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable long userId, HttpServletRequest request) {
